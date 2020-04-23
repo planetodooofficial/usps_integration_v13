@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_refund_request" model="ir.ui.view">
+            <field name="name">Refund Request Form</field>
+            <field name="model">refund.request</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Refund Request">
+                    <separator string="Refund Request" colspan="4" col="2" />
+                    <group col="2" colspan="2">
+                        <button special="cancel" string="_Cancel" icon="gtk-cancel"/>
+                        <button name="action_refund_request" string="Refund Request" type="object" icon="gtk-apply" />
+                    </group>
+                </form>
+            </field>
+        </record>
+        
+        <act_window name="Refund Request"
+                res_model="refund.request"
+                src_model="stock.picking"
+                view_mode="form"
+                multi="True"
+                target="new"
+                key2="client_action_multi"
+                id="view_refund_request_action"
+                groups="base_module_shipping.group_shipping_manager"
+                />
+
+<!--        <record id="action_view_refund_request" model="ir.actions.act_window">
+            <field name="name">Refund Request</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">refund.request</field>
+            <field name="view_type">form</field>
+            <field name="view_id" ref="view_refund_request"/>
+            <field name="target">new</field>
+        </record>
+
+        <record model="ir.values" id="delivery_order_refund_request">
+            <field name="model_id" ref="stock.model_stock_picking" />
+            <field name="object" eval="1" />
+            <field name="name">Refund Request</field>
+            <field name="key2">client_action_multi</field>
+            <field name="value" eval="'ir.actions.act_window,' + str(ref('action_view_refund_request'))" />
+            <field name="key">action</field>
+            <field name="model">stock.picking</field>
+        </record>-->
+
+
+    </data>
+</odoo>

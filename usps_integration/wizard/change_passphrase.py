@@ -1,7 +1,7 @@
-from openerp import models, fields, api, _
-from openerp.tools.translate import _
-from openerp.addons.usps_integration.models import endicia
-from openerp.exceptions import UserError
+from odoo import models, fields, api, _
+from odoo.tools.translate import _
+from odoo.addons.usps_integration.models import endicia
+from odoo.exceptions import UserError
 import logging
 _logger = logging.getLogger(__name__)
 

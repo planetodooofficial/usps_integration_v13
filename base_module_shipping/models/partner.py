@@ -18,14 +18,12 @@
 #
 ##############################################################################
 
+from odoo.osv import fields, osv
 from odoo import models, fields, api, _
 
-class delivery_carrier(models.Model):
-    _inherit = "delivery.carrier"
-    
-    container_usps = fields.Char(string='Container')
-    size_usps = fields.Char(string='Size', size=100)
-    first_class_mail_type_usps = fields.Char(string='First Class Mail Type')
-    is_usps = fields.Boolean(string='Is USPS', help="If the field is set to True, it will consider it as USPS service type.")
-    
-delivery_carrier()    
+class res_partner(models.Model):
+    _inherit = "res.partner"
+
+    invalid_addr = fields.Boolean(string = 'Invalid Address',readonly=True)
+
+res_partner()

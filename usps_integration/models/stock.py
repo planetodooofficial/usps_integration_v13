@@ -19,10 +19,10 @@
 ##############################################################################
 
 
-from openerp import models, fields, api, _
-from openerp.osv import osv
-from openerp.tools.translate import _
-from openerp.addons.base_module_shipping.models.miscellaneous import Address
+from odoo import models, fields, api, _
+from odoo.osv import osv
+from odoo.tools.translate import _
+from odoo.addons.base_module_shipping.models.miscellaneous import Address
 from endicia import Package
 import endicia
 import binascii
@@ -46,7 +46,7 @@ from reportlab.graphics.charts.barcharts import VerticalBarChart
 from reportlab.graphics.shapes import Drawing
 from reportlab.graphics.charts.textlabels import Label
 from reportlab.graphics.charts.legends import Legend
-import openerp.addons.decimal_precision as dp
+import odoo.addons.decimal_precision as dp
 import socket
 import datetime
 import base64
@@ -61,7 +61,7 @@ import StringIO
 import time
 import suds
 from suds.client import Client
-from openerp.tools.translate import _
+from odoo.tools.translate import _
 
 from urllib2 import Request, urlopen, URLError, quote
 import logging

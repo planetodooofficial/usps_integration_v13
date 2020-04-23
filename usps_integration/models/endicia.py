@@ -1,5 +1,5 @@
 import logging
-from openerp import models, fields, api, _
+from odoo import models, fields, api, _
 import re
 from urllib2 import Request, urlopen, URLError, quote
 import base64

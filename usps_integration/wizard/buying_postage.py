@@ -1,7 +1,7 @@
-from openerp.osv import osv
-from openerp import models, fields, api, _
-from openerp.tools.translate import _
-from openerp.addons.usps_integration.models import endicia
+from odoo.osv import osv
+from odoo import models, fields, api, _
+from odoo.tools.translate import _
+from odoo.addons.usps_integration.models import endicia
 import datetime
 import logging
 import time

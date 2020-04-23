@@ -18,7 +18,7 @@
 #
 ##############################################################################
 
-from openerp import models, fields, api, _
+from odoo import models, fields, api, _
 
 default_type = ['4X6','4X5','4X4.5','DocTab','6X4']
 certified_type = ['4X6','7X4','8X3','Booklet','EnvelopeSize10']

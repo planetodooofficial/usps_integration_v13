@@ -1,0 +1,107 @@
+# -*- encoding: utf-8 -*-
+##############################################################################
+#    Copyright (c) 2015 - Present Teckzilla Software Solutions Pvt. Ltd. All Rights Reserved
+#    Author: [Teckzilla Software Solutions]  <[sales@teckzilla.net]>
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    A copy of the GNU General Public License is available at:
+#    <http://www.gnu.org/licenses/gpl.html>.
+#
+##############################################################################
+
+from odoo import models, fields, api, _
+import odoo.addons.decimal_precision as dp
+
+class product_template(models.Model):
+    _name = "product.template"
+    _inherit = "product.template"
+
+    weight = fields.Float(string='Gross weight', digits_compute= dp.get_precision('Stock Weight'), help="The gross weight in Kg.")
+    weight_net = fields.Float(string='Net weight', digits_compute= dp.get_precision('Stock Weight'), help="The net weight in Kg.")
+    
+    
+product_template()
+
+class product_category_shipping(models.Model):
+    _name = "product.category.shipping"
+    _description = "Product Category Shipping"
+    _rec_name = "weight"
+    _order = "sequence desc"
+        
+    product_categ_id = fields.Many2one('product.category',string='Product Shipping Category')
+    sequence = fields.Integer(string='Sequence', required=True, help="Gives the order in which the shipping rules will be checked. The evaluation gives highest priority to lowest sequence and stops as soon as a matching item is found.", default= lambda *a: 5)
+    weight = fields.Float(string='Weight', digits_compute= dp.get_precision('Stock Weight'), help="Package weight which comes from weighinig machine in pounds")
+    shipping_type = fields.Selection([('Fedex','Fedex'),('UPS','UPS'),('USPS','USPS')],string='Shipping Type')
+    postage_usps = fields.Boolean(string='Include Postage')
+    
+
+product_category_shipping()
+
+
+class product_category(models.Model):
+    _inherit = "product.category"
+    
+    product_categ_shipping_ids = fields.One2many('product.category.shipping','product_categ_id', string='Product Category')
+        
+        
+product_category()
+
+
+class product_product_shipping(models.Model):
+    _name = "product.product.shipping"
+    _description = "Template"
+    _rec_name = "weight"
+    
+        
+    product_id =fields.Many2one('product.product',string='Product')
+    sequence = fields.Integer(string='Sequence', required=True, help="Gives the order in which the shipping rules will be checked. The evaluation gives highest priority to lowest sequence and stops as soon as a matching item is found.", default= lambda *a: 5)
+    weight = fields.Float(string='Weight', digits_compute= dp.get_precision('Stock Weight'), help="Package weight which comes from weighinig machine in pounds")
+    shipping_type = fields.Selection([('Fedex','Fedex'),('UPS','UPS'),('USPS','USPS')],string='Shipping Type')
+    
+        
+        
+    
+product_product_shipping()
+
+class product_product(models.Model):
+    _inherit = "product.product"
+
+    def onchange_default_shipping(self,cr,uid,ids,default_shipping,context=None):
+        result = {}
+        if ids:
+            if default_shipping==True:
+                categ_id=self.browse(cr,uid,ids[0]).categ_id
+                ship_one2many=categ_id.product_categ_shipping_ids
+                for each_line in ship_one2many:
+                    result = {
+                        'sequence':each_line.sequence,
+                        'weight':each_line.weight,
+                        'shipping_type':each_line.shipping_type,
+                        'service_type_usps':each_line.service_type_usps,
+                        'first_class_mail_type_usps':each_line.first_class_mail_type_usps,
+                        'container_usps':each_line.container_usps,
+                        'size_usps':each_line.size_usps,
+                        'product_id':ids[0]
+                    }
+                    self.pool.get('product.product.shipping').create(cr,uid,result)
+
+            else:
+                ### Delete Shippng methon if deleted from category
+                product_shipping_ids = self.browse(cr,uid,ids[0]).product_shipping_ids
+                for product_shipping_id in product_shipping_ids:
+                    self.pool.get('product.product.shipping').unlink(cr,uid,product_shipping_id.id,context)
+        return True
+
+    product_shipping_ids = fields.One2many('product.product.shipping','product_id', string='Product')
+    default_shipping = fields.Boolean(string='Use default shipping')
+        
+product_product()

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        
+        <record id="view_label_merger" model="ir.ui.view">
+            <field name="name">Print Label</field>
+            <field name="model">generate.label.pdf</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Generate Label">
+                    <separator string="Print Label" colspan="4" col="2" />
+                    <footer>
+                    <group col="2" colspan="2">
+                        <button name="print_lable" string="Print Label" type="object" icon="gtk-apply" />
+                        <button special="cancel" string="_Cancel" icon="gtk-cancel"/>
+                    </group>
+                  </footer>
+                </form>
+            </field>
+        </record>
+
+        
+        <act_window name="Print Label"
+                res_model="generate.label.pdf"
+                src_model="stock.picking"
+                view_mode="form"
+                multi="True"
+                target="new"
+                key2="client_action_multi"
+                id="delivery_order_generate_merge_pdf_labels"
+                groups="base_module_shipping.group_shipping_manager"
+                />
+
+
+    </data>
+</odoo>

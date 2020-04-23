@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_product_category_shipping_inherit1" model="ir.ui.view">
+            <field name="name">product.category.shipping.inherit1</field>
+            <field name="model">product.category</field>
+            <field name="inherit_id" ref="product.product_category_form_view" />
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='parent_id']" position="after">
+                    <separator string="Shipping Information" colspan="4" groups="base_module_shipping.group_shipping_manager" />
+                    <notebook colspan="4" groups="base_module_shipping.group_shipping_manager">
+                        <page string="Shipping Method">
+                            <separator string="Default Shipping Method" colspan="4" />
+                            <field colspan="4" name="product_categ_shipping_ids" nolabel="1" widget="one2many_list" >
+                                <tree string="" editable="bottom">
+                                    <field name="sequence"/>
+                                    <field name="weight"/>
+                                    <field name="shipping_type"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </xpath>
+            </field>
+        </record>
+
+
+
+        <record id="view_product_product_shipping_inherit1" model="ir.ui.view">
+            <field name="name">product.product.shipping.inherit1</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="product.product_normal_form_view"/>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <xpath expr="/form/sheet/notebook" position="inside">
+                   <page string="Shipping Method" groups="base_module_shipping.group_shipping_manager">
+                        <separator string="Default Shipping Method"/>
+                        <field name="default_shipping" on_change="onchange_default_shipping(default_shipping)"/>
+                        <field colspan="4" name="product_shipping_ids" nolabel="1" widget="one2many_list">
+                            <form string ="Shipping">
+                                <field name="weight"/>
+                                <field name="shipping_type"/>
+                            </form>
+                            <tree string="" editable="bottom">
+                                <field name="sequence"/>
+                                <field name="weight"/>
+                                <field name="shipping_type"/>
+                            </tree>
+                        </field>
+                    </page>
+                </xpath>
+        </field>
+    </record>
+
+     </data>
+</odoo>

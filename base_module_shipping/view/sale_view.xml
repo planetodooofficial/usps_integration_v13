@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+<!--        <record id="view_shop_form_shp1" model="ir.ui.view">
+           <field name="name">sale.shop.form.shp1</field>
+           <field name="model">sale.shop</field>
+           <field name="inherit_id" ref="saas_migration.view_shop_form"/>
+           <field name="arch" type="xml">
+               <xpath expr="//field[@name='project_id']" position="after">
+                   <field name="suffix"/>
+                   <field name="cust_address"/>
+               </xpath>
+           </field>
+       </record>-->
+
+    	<record id="view_order_form_inherit_frm_shp1" model="ir.ui.view">
+            <field name="name">sale.order.form.inherit.frm.shp1</field>
+            <field name="model">sale.order</field>
+            <field name="type">form</field>
+            <field name="inherit_id" ref="sale.view_order_form" />
+            <field name="arch" type="xml">
+                <field name="project_id" position="after">
+                   <field name="invalid_addr"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="view_order_form_inherit_frm_shp2" model="ir.ui.view">
+            <field name="name">sale.order.form.inherit.frm.shp2</field>
+            <field name="model">sale.order</field>
+            <field name="type">form</field>
+            <field name="inherit_id" ref="sale.view_order_form" />
+            <field name="arch" type="xml">
+                <field domain="[('type','=','sale')]" name="pricelist_id" position="after" >
+                    <field name="journal_id" />
+                </field>
+            </field>
+        </record>
+
+        <record id="view_sales_order_filter_inherit1" model="ir.ui.view">
+            <field name="name">sale.order.list.select.inherit1</field>
+            <field name="model">sale.order</field>
+            <field name="type">search</field>
+            <field name="inherit_id" ref="sale.view_sales_order_filter" />
+            <field name="arch" type="xml">
+                <field name="user_id" position="after">
+                   <field name="invalid_addr"/>
+                </field>
+            </field>
+        </record>
+        
+        <record id="view_shipping_sale_order_form" model="ir.ui.view">
+            <field name="name">sale.order.shipping.form</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                   <xpath expr="/form/sheet/notebook" position="inside">
+                        <page string="Shipping Info" groups="base_module_shipping.group_shipping_manager">
+                            <separator string = "Shipping Type" />
+                            <group colspan="4" col="4" >
+                                <field name="shipping_type" />
+                                <field name="use_shipping" />
+                            </group>
+                            
+                            <separator string = "Weight" />
+                            <group colspan="4" col="4" >
+                                <field name="weight_package" />
+                            </group>
+
+                            <group name = "Dimension" colspan="4" >
+                                <separator string = "Dimension" />
+                                <group colspan="4" col="4" >
+                                <field name="length_package" required = "1"/>
+                                <field name="width_package" required = "1"/>
+                                <field name="height_package" required = "1"/>
+                                <field name="units_package" required = "1"/>
+                                </group>
+                             </group>
+                            <group colspan="4" col="1" attrs="{'invisible':[('state','=','done')]}" >
+                                <separator/>
+                                <button string="Generate Shipping Quotes" icon="gtk-apply" name="generate_shipping_order" type="object" />
+                            </group>
+
+                            <group colspan="4" col="2" attrs="{'invisible':[('state','=','done')]}" >
+                                <separator string = "Shipping Quotes" colspan="2" />
+                                <field name="response_usps_ids" nolabel="1" widget="one2many_list"  colspan="2" readonly = "1">
+                                    <tree colors="blue:cust_default==True;red:sys_default==True" string="Shipping Quotes" >
+                                        <field name="name"/>
+                                        <field name="type"/>
+                                        <field name="rate" />
+                                        <field name="cust_default" invisible="1"/>
+                                        <field name="sys_default" invisible="1"/>
+                                    </tree>
+                                </field>
+                            </group>
+                        </page>
+                    </xpath>
+           </field>
+       </record>
+
+        
+
+    </data>
+</odoo>

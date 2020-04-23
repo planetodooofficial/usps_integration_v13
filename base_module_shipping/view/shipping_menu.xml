@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+                <menuitem id="menu_shipping_service" name="Shipping Service Management" parent="stock.menu_stock_root" sequence="13" groups="base_module_shipping.group_shipping_manager"/>
+                
+       </data>
+</odoo>

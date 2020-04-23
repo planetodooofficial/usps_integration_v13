@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_generate_shipping_quotes" model="ir.ui.view">
+            <field name="name">Generate Labels</field>
+            <field name="model">generate.shipping.quotes</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Generate Shipping Quotes">
+                    <field name="name"/>
+                    <separator string="Get Quotes" colspan="4" col="2" />
+                    <footer>
+                    <group col="2" colspan="2">
+                        <button special="cancel" string="_Cancel" icon="gtk-cancel"/>
+                        <button name="action_get_quotes" string="Generate Label" type="object" icon="gtk-apply" />
+                    </group>
+                  </footer>
+                </form>
+            </field>
+        </record>
+        
+        <act_window name="Generate Label"
+                res_model="generate.shipping.quotes"
+                src_model="stock.picking"
+                view_mode="form"
+                multi="True"
+                target="new"
+                key2="client_action_multi"
+                id="view_generate_shipping_quotes_action"
+                groups="base_module_shipping.group_shipping_manager"
+                />
+
+<!--        <record id="action_view_generate_shipping_quotes" model="ir.actions.act_window">
+            <field name="name">Generate Labels</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">generate.shipping.quotes</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_generate_shipping_quotes"/>
+            <field name="target">new</field>
+        </record>
+
+        <record model="ir.values" id="delivery_order_generate_shipping_quotes">
+            <field name="model_id" ref="stock.model_stock_picking" />
+            <field name="object" eval="1" />
+            <field name="name">Generate Labels</field>
+            <field name="key2">client_action_multi</field>
+            <field name="value" eval="'ir.actions.act_window,' + str(ref('action_view_generate_shipping_quotes'))" />
+            <field name="key">action</field>
+            <field name="sequence">1</field>
+            <field name="model">stock.picking</field>
+        </record>-->
+
+
+    </data>
+</odoo>
