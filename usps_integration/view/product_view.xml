@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        
+            <record id="product_category_view_tree_for_usps" model="ir.ui.view">
+                <field name="name">product.category.view.tree.for.usps</field>
+                <field name="model">product.category</field>
+                <field name="type">form</field>
+                <field name="inherit_id" ref="base_module_shipping.view_product_category_shipping_inherit1" />
+                <field name="arch" type="xml">
+                    <xpath expr="//field[@name='product_categ_shipping_ids']/tree//field[@name='shipping_type']" position="after">
+                        <field name="service_type_usps" />
+                            <field name="first_class_mail_type_usps"/>
+                            <field name="container_usps"/>
+                            <field name="size_usps"/>
+                            <field name="postage_usps"/>
+                    </xpath>
+                </field>
+            </record>
+            
+            
+            
+        <record id="product_product_view_tree_for_ups" model="ir.ui.view">
+        <field name="name">product.product.view.tree.for.ups</field>
+        <field name="model">product.product</field>
+        <field name="type">form</field>
+        <field name="inherit_id" ref="base_module_shipping.view_product_product_shipping_inherit1" />
+        <field name="arch" type="xml">
+                <xpath expr="//field[@name='product_shipping_ids']/tree//field[@name='shipping_type']" position="after">
+                        <field name="service_type_usps"/>
+                        <field name="first_class_mail_type_usps"/>
+                        <field name="container_usps"/>
+                        <field name="size_usps"/>
+                        <field name="postage_usps"/>
+                </xpath>
+                <xpath expr="//field[@name='product_shipping_ids']/form//field[@name='shipping_type']" position="after">
+                    <field name="service_type_usps"/>
+                    <field name="first_class_mail_type_usps"/>
+                    <field name="container_usps"/>
+                    <field name="size_usps"/>
+                </xpath>
+            </field>
+        </record>
+        
+            
+   </data>
+</openerp>           

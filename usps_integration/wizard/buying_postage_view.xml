@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record id="view_buying_postage" model="ir.ui.view">
+            <field name="name">Buying Postage Form</field>
+            <field name="model">buying.postage</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Buying Postage">
+                    <separator string="Recredit Amount" colspan="4" col="2" />
+                    <field name="name" />
+                    <newline/>
+                    <group col="2" colspan="2">
+                        <button special="cancel" string="_Cancel" icon="gtk-cancel"/>
+                        <button name="action_buy_postge" string="Buy Postage" type="object" icon="gtk-apply" />
+                    </group>
+                </form>
+            </field>
+        </record>
+
+        <act_window id="act_buying_postage"
+            multi="True"
+            key2="client_action_multi" name="Buy USPS Postage"
+            res_model="buying.postage" src_model="shipping.usps"
+            view_mode="form" target="new" view_type="form" />
+
+   </data>
+</openerp>

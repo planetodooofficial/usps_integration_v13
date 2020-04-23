@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        
+        <record id="shipping_usps_form" model="ir.ui.view">
+            <field name="name">shipping.usps.form</field>
+            <field name="model">shipping.usps</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="USPS Settings">
+                    <notebook colspan="4">
+                        <page string="Settings">
+                            <group colspan="2" col="2" style="width:70%">
+                                <separator string="General Information" colspan="2" />
+                                <field name="name_usps" />
+                                <field name="user_id" />
+                            </group>
+                            
+                            <group colspan="2" col="2" style="width:70%">
+                                <separator string="Shipping Address" colspan="2" />
+                                <field name="config_shipping_address_id" required = "1"/>
+                            </group>
+                            
+                            <group colspan="2" col="2">
+                                <group>
+                                <separator string="Production/Test" colspan="2" />
+                                <field name="test_usps"/>
+                                </group>
+                                <group>
+                                    <separator string="Active" colspan="2" />
+                                    <field name="active_usps"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+
+                </form>
+            </field>
+        </record>
+
+        <record id="shipping_usps_tree" model="ir.ui.view">
+            <field name="name">shipping.usps.tree</field>
+            <field name="model">shipping.usps</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="USPS Settings">
+                    <field name="name_usps"/>
+                    <field name="user_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="shipping_usps_action" model="ir.actions.act_window">
+            <field name="name">USPS Settings</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">shipping.usps</field>
+            <field name="view_type">form</field>
+            <field name="view_id" ref="shipping_usps_tree"/>
+            <field name="help">Key in Server name and User ID which you get from USPS website.</field>
+        </record>
+
+        
+    </data>
+</openerp>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="view_picking_out_usps" model="ir.ui.view">
+            <field name="name">view.picking.out.usps</field>
+            <field name="model">stock.picking</field>
+            <field name="type">form</field>
+            <field name="inherit_id" ref="base_module_shipping.view_picking_out_form_inherit1" />
+            <field name="arch" type="xml">
+                <xpath expr="//group[@name='Dimension']" position="after">
+                        <group colspan="4" col="4" name="usps" attrs="{'invisible':[('shipping_type','!=','USPS'), ('shipping_type','!=','All')]}" >
+                            <separator string = "USPS" />
+
+                            <group colspan="4" col="4" >
+                                <field name="service_type_usps" attrs="{'required':[('shipping_type','=','USPS')]}" />
+                                <field name="container_usps" />
+                                <field name="size_usps" attrs="{'required':[('shipping_type','=','USPS')]}" />
+                                <field name="first_class_mail_type_usps" attrs="{'invisible':[('service_type_usps','not in',('First Class','First Class HFP Commercial'))]}" />
+                                <field name="include_postage_usps" attrs="{'required':[('shipping_type','=','USPS')]}" />
+                            </group>
+
+                            <group colspan="4" col="4" attrs="{'invisible':[('size_usps','!=','LARGE')]}" >
+                                <separator string = "USPS Dimension" />
+                                <field name="width_usps" />
+                                <field name="length_usps" />
+                                <field name="height_usps" />
+                                <field name="girth_usps" attrs="{'invisible':['|', ('container_usps','!=','Non-Rectangular'), ('container_usps','!=','Variable'), ('container_usps','!=','')]}" />
+                            </group>
+
+                        </group>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</openerp>

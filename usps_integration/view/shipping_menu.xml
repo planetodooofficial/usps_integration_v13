@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+	<data>
+                
+                <menuitem id="menu_usps_setting" name="USPS Settings" parent="base_module_shipping.menu_shipping_service" action="shipping_usps_action" />
+                
+       </data>
+</openerp>

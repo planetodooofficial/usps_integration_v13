@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="usps_inherit_setting_view_for_endicia" model="ir.ui.view">
+            <field name="name">usps.inherit.setting.view.for.endicia</field>
+            <field name="model">shipping.usps</field>
+            <field name="type">form</field>
+            <field name="inherit_id" ref="shipping_usps_form" />
+            <field name="arch" type="xml">
+               <xpath expr="/form/notebook" position="inside">
+                        <page string="Endicia Settings">
+                            <group colspan="2" col="2" style="width:70%">
+                                <separator string="General Information" colspan="2" />
+                                <field name="name" />
+                                <field name="requester_id" />
+                                <field name="account_id" />
+                                <field name="passphrase" />
+                            </group>
+
+                            <group colspan="2" col="2">
+                                <group>
+                                <separator string="Others" colspan="2" />
+                                <field name="test"/>
+                                </group>
+                                <group>
+                                    <separator string="Active" colspan="2" />
+                                    <field name="active"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Label Details">
+                            <group style="width:70%">
+                                <separator string="Label Details" colspan="4" />
+                                <field name="label_type" />
+                                <field name="label_size" />
+                                <field name="image_format" />
+                                <field name="image_rotation" />
+                            </group>
+                        </page>
+                </xpath>
+            </field>
+        </record>
+
+<!--        <record id="shipping_endicia_tree" model="ir.ui.view">
+            <field name="name">shipping.endicia.tree</field>
+            <field name="model">shipping.endicia</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="Endicia Settings">
+                    <field name="name"/>
+                    <field name="requester_id"/>
+                    <field name="account_id"/>
+                    <field name="passphrase"/>
+                </tree>
+            </field>
+        </record>-->
+
+<!--        <record id="shipping_endicia_action" model="ir.actions.act_window">
+            <field name="name">Endicia Settings</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">shipping.endicia</field>
+            <field name="view_type">form</field>
+            <field name="view_id" ref="shipping_endicia_tree"/>
+            <field name="help">Key in RequesterID, AccountID and Passphrase which you get from Endicia.</field>
+        </record>
+         Endicia End 
+
+        <menuitem id="menu_endicia_setting" name="Endicia Settings" parent="shipping_teckzilla.menu_shipping_service" action="shipping_endicia_action" />-->
+
+   </data>
+</openerp>

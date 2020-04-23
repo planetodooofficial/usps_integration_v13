@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>        
+        
+        <!--Bulk Docket Views, Action and Menus************************************************************************-->
+        <!--Bulk Docket Form View....................................-->
+        <record id="bulk_dockets_form_view" model="ir.ui.view">
+            <field name="name">bulk.dockets.form.view</field>
+            <field name="model">bulk.dockets</field>
+            <field name="arch" type="xml">
+                <form string="Bulk Docket" version="7.0">
+                    <header>
+                        <button name="get_done" type="object" states="draft" string="Confirm"/>
+                        <button name="%(action_cancel_bulk)d" type="action" states="draft" string="Cancel"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,done"/>
+                    </header>
+                    <h1>
+                        <label string="Docket/"/>
+                        <field name="name" class="oe_inline" readonly="1"/>
+                    </h1>
+                    <group>
+                        <group groups="food_farm.group_farm_admin,food_farm.group_farm_cluster">
+                            <field name="supplier_id"/>
+                        </group>
+                        <group>
+                            <!--==================================================================================================-->
+                                <!--for test docket api in supplier and in Cluster as well-->
+                            <!--<button name="testing_listSupplierOrders" type="object" string="Dockets" />-->
+                            <!--<button name="testing_supplierConfirmDocket" type="object" string="Test Confirm Dockets" />-->
+                               <!--<button name="testing_listAllDockets_cluster" type="object" string="Bulk Cluster" />-->
+                            <!--==================================================================================================-->
+                            <field name="date_created" />
+                            <field name="confirm_date" attrs="{'invisible': [('state','=','draft')]}"/>
+                        </group>
+                        <group groups="food_farm.group_farm_supplier">
+                        </group>
+                    </group>
+                    <group>
+                        <field name="reason_cancel" attrs="{'invisible' : [('state','!=','cancel')]}" readonly="1"/>
+                    </group>
+<!--                    <group>
+                        <button name="get_transaction_id" string="Transaction" type="object" />
+                        <button name="do_capture" string="Capture" type="object" />
+                    </group>-->
+                    <group name="lines">
+                        <field name="bult_docket_lines" nolabel="1" colspan="4">
+                            <!--<tree editable="bottom">-->
+                            <tree editable="bottom" colors="green:order_qty == conf_qty;red:conf_qty &lt; order_qty; blue:conf_qty &gt; order_qty">
+                                <field name="name" />
+                                <field name="order_qty" />
+                                <field name="conf_qty" on_change="get_discrip(order_qty,conf_qty)"/>
+                                <field name="disc_qty" />
+                                <field name="reason"/>
+                                <field name="origin" invisible="1"/>
+                            </tree>
+                        </field>
+                    </group>
+                </form>
+            </field>
+        </record>
+        
+        <!--Bulk Docket Tree View............................-->
+        <record id="bulk_dockets_tree_view" model="ir.ui.view">
+            <field name="name">bulk.dockets.tree.view</field>
+            <field name="model">bulk.dockets</field>
+            <field name="arch" type="xml">
+                <tree string="Bulk Docket">
+                    <field name="name" />
+                    <field name="supplier_id" />
+                    <field name="state" />
+                </tree>
+            </field>
+        </record>
+        
+        <!--Bulk Docket Search View...............................-->
+        <record id="bulk_dockets_search_view" model="ir.ui.view">
+            <field name="name">bulk.dockets.search.view</field>
+            <field name="model">bulk.dockets</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name" />
+                    <field name="supplier_id" />
+                    <field name="state" />
+                   <group expand="0" string="Group By..." groups="food_farm.group_farm_admin">
+                       <filter string="Supplier" icon="terp-personal" domain="[]" context="{'group_by' : 'supplier_id'}" />
+                       <filter string="Status" icon="terp-personal" domain="[]" context="{'group_by' : 'state'}" />
+                       <filter string="Name" icon="terp-personal" domain="[]" context="{'group_by' : 'name'}" />
+                   </group>
+                </search>
+            </field>
+        </record>
+        
+        <!--Action for dispaly all bulk Docket.............-->
+        <record id="action_all_bulk_docket" model="ir.actions.act_window">
+            <field name="name">All Supplier's Products Ordered</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">bulk.dockets</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="bulk_dockets_search_view" />
+        </record>
+        	
+        
+        
+        <!--Root menu Fullfullment.......................-->
+        <menuitem id="main_menu_external_process_cluster" name="Fullfillments" sequence="14"/>
+        <!--Label of Bulk Docket for Admin.................-->
+        <menuitem id="external_all_docket_root" parent="main_menu_external_process_cluster" name="All Docket" sequence="1" />
+        <!--Menu to display all for Admin....................-->
+        <menuitem action="action_all_bulk_docket" name="All Supplier's Products Ordered" id="menu_bulk_docket" parent="external_all_docket_root" sequence='1' />
+        
+        <!--Done all Bulk Docket View***************************************************************************************************-->
+        
+        <!--Box Views********************************************************************************-->
+        <record id="box_form_view" model="ir.ui.view">
+            <field name="name">box.box.form.view</field>
+            <field name="model">box.box</field>
+            <field name="arch" type="xml">
+                <form string="Box" version="7.0">
+                    <group>
+                        <field name="name" />
+<!--                        <field name="box_width" />
+                        <field name="box_height" />
+                        <field name="box_length" />
+                        <field name="box_weight" />-->
+                    </group>
+                </form>
+            </field>
+        </record>
+        
+    </data>
+</openerp>
