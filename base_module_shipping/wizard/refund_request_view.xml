@@ -18,7 +18,7 @@
         
         <act_window name="Refund Request"
                 res_model="refund.request"
-                src_model="stock.picking"
+                binding_model="stock.picking"
                 view_mode="form"
                 multi="True"
                 target="new"

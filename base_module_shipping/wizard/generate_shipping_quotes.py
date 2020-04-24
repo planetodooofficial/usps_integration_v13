@@ -18,13 +18,10 @@
 #
 ##############################################################################
 
-from odoo.osv import fields, osv
-from odoo import models, fields, api, _
-from odoo.tools.translate import _
-import datetime
 import logging
-import time
-import commands
+
+from odoo import models, fields, api
+
 _logger = logging.getLogger(__name__)
 
 
@@ -48,7 +45,7 @@ class generate_shipping_quotes(models.TransientModel):
         return res        
 
 
-    @api.multi
+    #@api.multi
     def action_get_quotes(self):
         '''
         This function is used to Generated the generate shipping label function based on the carrier type choosen in the deilvery order
@@ -85,7 +82,7 @@ class generate_shipping_quotes(models.TransientModel):
                             result = shipping_response_obj.with_context().generate_fedex_tracking_no(picking_data)
                         elif picking_data.shipping_type.lower() == 'ups':
                             result = shipping_response_obj.with_context().generate_ups_tracking_no(picking_data)
-                    except Exception, e:
+                    except Exception as e:
                         log_data = picking_data.write({'error_for_faulty': str(e),'is_faulty_deliv_order': True})
                         self._cr.commit()
                         pass

@@ -21,8 +21,8 @@
         <act_window id="act_buying_postage"
             multi="True"
             key2="client_action_multi" name="Buy USPS Postage"
-            res_model="buying.postage" src_model="shipping.usps"
-            view_mode="form" target="new" view_type="form" />
+            res_model="buying.postage" binding_model="shipping.usps"
+            view_mode="form" target="new"/>
 
    </data>
 </odoo>

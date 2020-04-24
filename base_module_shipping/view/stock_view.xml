@@ -39,7 +39,7 @@
             <field name="name">Shipping Response</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">shipping.response</field>
-            <field name="view_type">form</field>
+<!--            <field name="view_type">form</field>-->
             <field name="view_id" ref="view_shipping_response_tree"/>
             <field name="help">Key in Server name and User ID which you get from USPS website.</field>
         </record>
@@ -299,7 +299,7 @@
             <field name="name">Orders For Shipping</field>
             <field name="res_model">stock.picking</field>
             <field name="type">ir.actions.act_window</field>
-            <field name="view_type">form</field>
+<!--            <field name="view_type">form</field>-->
             <field name="view_mode">tree,form</field>
             <field name="domain">[('picking_type_id','=',2)]</field>
             <field name="context">{'contact_display': 'partner_address', 'search_default_available': 1}</field>

@@ -21,11 +21,8 @@
         
         <act_window name="Generate Label"
                 res_model="generate.shipping.quotes"
-                src_model="stock.picking"
+                binding_model="stock.picking"
                 view_mode="form"
-                multi="True"
-                target="new"
-                key2="client_action_multi"
                 id="view_generate_shipping_quotes_action"
                 groups="base_module_shipping.group_shipping_manager"
                 />
@@ -50,7 +47,5 @@
             <field name="sequence">1</field>
             <field name="model">stock.picking</field>
         </record>-->
-
-
     </data>
 </odoo>

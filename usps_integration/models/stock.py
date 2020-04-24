@@ -19,92 +19,65 @@
 ##############################################################################
 
 
-from odoo import models, fields, api, _
+import base64
+import binascii
+import logging
+import os
+from io import StringIO
+
+from PIL import Image
+from reportlab.pdfgen import canvas
+from reportlab.platypus import Image
+
+from custom.usps_integration_v13.base_module_shipping.models.miscellaneous import Address
+from odoo import models, fields
 from odoo.osv import osv
 from odoo.tools.translate import _
-from odoo.addons.base_module_shipping.models.miscellaneous import Address
-from endicia import Package
-import endicia
-import binascii
-import urllib2
-import urllib
-from base64 import b64decode
-import binascii
-import time
-from reportlab.lib.enums import TA_CENTER
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import *
-from reportlab.pdfgen.canvas import Canvas
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.lib.units import inch
-from reportlab.lib import colors
-from reportlab.platypus import Paragraph, Frame, Spacer, Image, Table, TableStyle, SimpleDocTemplate
-from reportlab.graphics.charts.barcharts import VerticalBarChart
-from reportlab.graphics.shapes import Drawing
-from reportlab.graphics.charts.textlabels import Label
-from reportlab.graphics.charts.legends import Legend
-import odoo.addons.decimal_precision as dp
-import socket
-import datetime
-import base64
-import base64
-import cStringIO
-import StringIO
-import binascii
-import os
-import Image
-import cStringIO
-import StringIO
-import time
-import suds
-from suds.client import Client
-from odoo.tools.translate import _
+from . import endicia
+from .endicia import Package
 
-from urllib2 import Request, urlopen, URLError, quote
-import logging
 logger = logging.getLogger('stock')
+
 
 class stock_picking(models.Model):
     _inherit = "stock.picking"
-    
-    
-    @api.multi
+
+    # @api.multi
     def get_endicia_info(self):
         shipping_usps_obj = self.env['shipping.usps']
-        ship_endicia_id = shipping_usps_obj.search([('active','=',True)])
+        ship_endicia_id = shipping_usps_obj.search([('active', '=', True)])
         if not ship_endicia_id:
-              raise osv.except_osv(_('Error'), _('Active Endicia settings not defined'))
+            raise osv.except_osv(_('Error'), _('Active Endicia settings not defined'))
         else:
             ship_endicia_id = ship_endicia_id[0]
         return ship_endicia_id
-    
-    @api.multi
+
+    # @api.multi
     def get_usps_info(self):
         shipping_usps_obj = self.env['shipping.usps']
-        ship_usps_id = shipping_usps_obj.search([('active_usps','=',True)])
+        ship_usps_id = shipping_usps_obj.search([('active_usps', '=', True)])
         if not ship_usps_id:
-              raise osv.except_osv(_('Error'), _('Active USPS settings not defined'))
+            raise osv.except_osv(_('Error'), _('Active USPS settings not defined'))
         else:
             ship_usps_id = ship_usps_id[0]
         return ship_usps_id
-    
+
     def _get_shipping_type(self):
         res = super(stock_picking, self)._get_shipping_type()
-        res.append(('USPS','USPS'))
+        res.append(('USPS', 'USPS'))
         return res
-    
-    shipping_type = fields.Selection(_get_shipping_type,'Shipping Type')
-    
-    @api.multi
-    def create_shipping_quotes(self,response,weight,cust_default,sys_default):
+
+    shipping_type = fields.Selection(_get_shipping_type, 'Shipping Type')
+
+    # @api.multi
+    def create_shipping_quotes(self, response, weight, cust_default, sys_default):
         shipping_res_obj = self.env['shipping.response']
 
         for resp in response['info']:
-            sr_no = 1 if cust_default and cust_default.split('/')[0] == 'USPS' and cust_default.split('/')[1].split(' ')[0] in resp['service'] else 9
-            sr_no = 2 if sr_no == 9 and sys_default and sys_default.split('/')[0] == 'USPS' and sys_default.split('/')[1].split(' ')[0] in resp['service'] else sr_no
+            sr_no = 1 if cust_default and cust_default.split('/')[0] == 'USPS' and \
+                         cust_default.split('/')[1].split(' ')[0] in resp['service'] else 9
+            sr_no = 2 if sr_no == 9 and sys_default and sys_default.split('/')[0] == 'USPS' and \
+                         sys_default.split('/')[1].split(' ')[0] in resp['service'] else sr_no
             vals = {
                 'name': resp['service'],
                 'type': 'USPS',
@@ -119,37 +92,38 @@ class stock_picking(models.Model):
             res_id = shipping_res_obj.create(vals)
         return True
 
-    @api.multi
+    # @api.multi
     def get_endicia_rates(self, weight, shipper, recipient, cust_default=False, sys_default=False, error=True):
         if 'usps_endicia_active' in self._context.keys() and self._context['usps_endicia_active'] == False:
             return False
 
         ship_endicia = self.env['shipping.endicia'].get_endicia_info()
-        credentials = {'partner_id':ship_endicia.requester_id,'account_id':ship_endicia.account_id,'passphrase':ship_endicia.passphrase}
+        credentials = {'partner_id': ship_endicia.requester_id, 'account_id': ship_endicia.account_id,
+                       'passphrase': ship_endicia.passphrase}
 
         service_type = sys_default.split('/')[1]
         container = sys_default.split('/')[2]
 
-        packages = [Package(service_type, round(weight * 16,1), 0, 0, 0, value=1000, require_signature=3, reference='a12302b') ]
+        packages = [
+            Package(service_type, round(weight * 16, 1), 0, 0, 0, value=1000, require_signature=3, reference='a12302b')]
 
-        en = endicia.Endicia(credentials,ship_endicia.test)
+        en = endicia.Endicia(credentials, ship_endicia.test)
         response = en.rate(packages, Package.shapes[container], shipper, recipient)
         logger.info('endicia response:   %s', response)
         if response['status'] == 0:
             return response
-        
-    
-    @api.multi
-    def generate_usps_endicia_shipping(self, weight, shipper, recipient, cust_default=False, sys_default=False, error=True, context=None):
-        response = self.get_endicia_rates(weight,shipper,recipient,cust_default,sys_default,error,context)
+
+    # @api.multi
+    def generate_usps_endicia_shipping(self, weight, shipper, recipient, cust_default=False, sys_default=False,
+                                       error=True, context=None):
+        response = self.get_endicia_rates(weight, shipper, recipient, cust_default, sys_default, error, context)
         logger.info('endicia response:   %s', response)
         if response['status'] == 0:
-            return self.create_shipping_quotes(response,weight,cust_default,sys_default,context)
+            return self.create_shipping_quotes(response, weight, cust_default, sys_default, context)
 
-        
-    @api.multi
+    # @api.multi
     def generate_shipping(self):
-#        sys_default = 'USPS/First Class/Letter/Reqular'
+        #        sys_default = 'USPS/First Class/Letter/Reqular'
         if self._context is None:
             self._context = {}
         self._context['usps_active'] = False
@@ -157,7 +131,7 @@ class stock_picking(models.Model):
         super(stock_picking, self).generate_shipping()
 
         for id in self:
-#            try:
+            #            try:
             stockpicking = self
             shipping_type = stockpicking.shipping_type
 
@@ -171,26 +145,39 @@ class stock_picking(models.Model):
                 if not cust_address:
                     raise Exception('Shop Address not defined!')
 
-                shipper = Address(cust_address.name, cust_address.street, cust_address.city, cust_address.state_id.code or '', cust_address.zip, cust_address.country_id.code, cust_address.street2 or '', cust_address.phone or '', cust_address.email, cust_address.name)
+                shipper = Address(cust_address.name, cust_address.street, cust_address.city,
+                                  cust_address.state_id.code or '', cust_address.zip, cust_address.country_id.code,
+                                  cust_address.street2 or '', cust_address.phone or '', cust_address.email,
+                                  cust_address.name)
 
                 ### Recipient
                 cust_address = sale_id.partner_id
-                receipient = Address(cust_address.name or '', cust_address.street and cust_address.street.rstrip(','), cust_address.city and cust_address.city.rstrip(','), cust_address.state_id.code or '', cust_address.zip, cust_address.country_id.code, cust_address.street2 and (cust_address.street != cust_address.street2) and cust_address.street2.rstrip(',') or '', cust_address.phone or '', cust_address.email, (cust_address.name != cust_address.name) and cust_address.name or '')
+                receipient = Address(cust_address.name or '', cust_address.street and cust_address.street.rstrip(','),
+                                     cust_address.city and cust_address.city.rstrip(','),
+                                     cust_address.state_id.code or '', cust_address.zip, cust_address.country_id.code,
+                                     cust_address.street2 and (
+                                                 cust_address.street != cust_address.street2) and cust_address.street2.rstrip(
+                                         ',') or '', cust_address.phone or '', cust_address.email,
+                                     (cust_address.name != cust_address.name) and cust_address.name or '')
                 lines = self.env['sale.order'].browse(sale_id.id).order_line
-                heaviest_product_id = self._get_heaviest_product(cr,uid,[id],lines,context)
-                sys_default = self._get_sys_default_shipping(sale_id,heaviest_product_id,weight)
+                heaviest_product_id = self._get_heaviest_product(cr, uid, [id], lines, context)
+                sys_default = self._get_sys_default_shipping(sale_id, heaviest_product_id, weight)
                 context['sys_default'] = sys_default
-                cust_default= self._get_cust_default_shipping(cr,uid,stockpicking.carrier_id.id)
+                cust_default = self._get_cust_default_shipping(cr, uid, stockpicking.carrier_id.id)
                 context['cust_default'] = cust_default
-                shipping_res = self.generate_usps_endicia_shipping([id],weight,shipper,receipient,self._context.get('cust_default',False),self._context.get('sys_default',False),self._context.get('error',False),self._context)
+                shipping_res = self.generate_usps_endicia_shipping([id], weight, shipper, receipient,
+                                                                   self._context.get('cust_default', False),
+                                                                   self._context.get('sys_default', False),
+                                                                   self._context.get('error', False), self._context)
                 logger.info('endicia shipping_res:  %s', shipping_res)
         return True
 
+
 stock_picking()
+
 
 class shipping_response(models.Model):
     _inherit = 'shipping.response'
-
 
     def generate_usps_tracking_no(self, picking, error=False):
         '''
@@ -200,11 +187,11 @@ class shipping_response(models.Model):
         '''
         sale_id = self.env['sale.order'].search([('name', '=', picking.origin)])
         context = dict(self._context or {})
-        if not self.env['shipping.usps'].search([('active','=',True)]):
+        if not self.env['shipping.usps'].search([('active', '=', True)]):
             raise osv.except_osv(_('Error'), _('Default Endicia settings not defined'))
-        ship_endicia = self.env['shipping.usps'].search([('active','=',True)])
+        ship_endicia = self.env['shipping.usps'].search([('active', '=', True)])
         context['usps_active'] = False
-        #Endicia Quotes Selected
+        # Endicia Quotes Selected
         stockpicking_obj = self.env['stock.picking']
         if picking.service_type_usps.find('First') != -1:
             mail_class = 'First'
@@ -214,9 +201,18 @@ class shipping_response(models.Model):
             mail_class = picking.service_type_usps
 
         cust_address = ship_endicia.config_shipping_address_id
-        shipper = Address(cust_address.name or '', cust_address.street, cust_address.street2 or '', cust_address.city, cust_address.state_id.code or '', cust_address.zip, cust_address.country_id.code, cust_address.phone or '', cust_address.email, (cust_address.name != cust_address.name) and cust_address.name or '')
+        shipper = Address(cust_address.name or '', cust_address.street, cust_address.street2 or '', cust_address.city,
+                          cust_address.state_id.code or '', cust_address.zip, cust_address.country_id.code,
+                          cust_address.phone or '', cust_address.email,
+                          (cust_address.name != cust_address.name) and cust_address.name or '')
         cust_address = picking.partner_id
-        receipient = Address(cust_address.name or '', cust_address.street and cust_address.street.rstrip(','), cust_address.street2 and (cust_address.street != cust_address.street2) and cust_address.street2.rstrip(',') or '', cust_address.city and cust_address.city.rstrip(','), cust_address.state_id.code or '', cust_address.zip, cust_address.country_id.code, cust_address.phone or '', cust_address.email, (cust_address.name != cust_address.name) and cust_address.name or '')
+        receipient = Address(cust_address.name or '', cust_address.street and cust_address.street.rstrip(','),
+                             cust_address.street2 and (
+                                         cust_address.street != cust_address.street2) and cust_address.street2.rstrip(
+                                 ',') or '', cust_address.city and cust_address.city.rstrip(','),
+                             cust_address.state_id.code or '', cust_address.zip, cust_address.country_id.code,
+                             cust_address.phone or '', cust_address.email,
+                             (cust_address.name != cust_address.name) and cust_address.name or '')
         international_label = False
         if receipient.country_code.lower() != 'us' and receipient.country_code.lower() != 'usa' and receipient.country_code.lower() != 'pr':
             international_label = True
@@ -226,39 +222,51 @@ class shipping_response(models.Model):
                 mail_class = 'ExpressMailInternational'
             elif picking.service_type_usps.find('Priority') != -1:
                 mail_class = 'PriorityMailInternational'
-        package = endicia.Package(mail_class, int(round(picking.weight_package*10 >= 1.0 and picking.weight_package*10 or 1.0)), endicia.Package.shapes[picking.container_usps], picking.length_package, picking.width_package, picking.height_package,picking.name,sale_id.amount_total)
+        package = endicia.Package(mail_class,
+                                  int(round(picking.weight_package * 10 >= 1.0 and picking.weight_package * 10 or 1.0)),
+                                  endicia.Package.shapes[picking.container_usps], picking.length_package,
+                                  picking.width_package, picking.height_package, picking.name, sale_id.amount_total)
         customs = []
         if international_label:
             for move_line in picking.move_lines:
-                weight_net = move_line.product_id.product_tmpl_id.weight_net*16 >= 1.0 and move_line.product_id.product_tmpl_id.weight_net*16*move_line.product_qty or 1.0
-                customs.append(endicia.Customs(move_line.product_id.default_code +'-'+ move_line.product_id.name, int(move_line.product_qty), int(round(weight_net)), move_line.price_unit > 0.00 and move_line.price_unit or 39.00, shipper.country_code))
-            
+                weight_net = move_line.product_id.product_tmpl_id.weight_net * 16 >= 1.0 and move_line.product_id.product_tmpl_id.weight_net * 16 * move_line.product_qty or 1.0
+                customs.append(endicia.Customs(move_line.product_id.default_code + '-' + move_line.product_id.name,
+                                               int(move_line.product_qty), int(round(weight_net)),
+                                               move_line.price_unit > 0.00 and move_line.price_unit or 39.00,
+                                               shipper.country_code))
+
         reference = ''
         reference2 = ''
         for move_line in picking.move_lines:
-            reference += ' ('+str(int(move_line.product_qty))+')'
+            reference += ' (' + str(int(move_line.product_qty)) + ')'
             if move_line.product_id.default_code:
-                reference +=  str(move_line.product_id.default_code) + '+'
+                reference += str(move_line.product_id.default_code) + '+'
 
         reference = reference[:-1]
         reference = reference[20:]
-        reference2+=' '+ship_endicia.config_shipping_address_id.name
+        reference2 += ' ' + ship_endicia.config_shipping_address_id.name
 
-#        try:
-        
+        #        try:
+
         include_postage = picking.include_postage_usps
         if picking.service_type_usps.find('International') != -1 or picking.container_usps == 'Letter' != -1:
             image_rotation = 'Rotate90'
         else:
             image_rotation = ship_endicia.image_rotation
 
-        request = endicia.LabelRequest(ship_endicia.requester_id, ship_endicia.account_id, ship_endicia.passphrase , ship_endicia.label_type if not international_label else 'International', ship_endicia.label_size, ship_endicia.image_format, image_rotation,package, shipper, receipient, reference ,reference2 ,include_postage,debug=ship_endicia.test, destination_confirm = True if picking.service_type_usps == 'First Class' and picking.container_usps == 'Letter' else False,customs_info=customs)
+        request = endicia.LabelRequest(ship_endicia.requester_id, ship_endicia.account_id, ship_endicia.passphrase,
+                                       ship_endicia.label_type if not international_label else 'International',
+                                       ship_endicia.label_size, ship_endicia.image_format, image_rotation, package,
+                                       shipper, receipient, reference, reference2, include_postage,
+                                       debug=ship_endicia.test,
+                                       destination_confirm=True if picking.service_type_usps == 'First Class' and picking.container_usps == 'Letter' else False,
+                                       customs_info=customs)
         response = request.send()
         if isinstance(response, (str)):
-            log_data = picking.write({'error_for_faulty': str(response),'is_faulty_deliv_order': True})
+            log_data = picking.write({'error_for_faulty': str(response), 'is_faulty_deliv_order': True})
             return True
         endicia_res = response._get_value()
-        im_barcode = cStringIO.StringIO(endicia_res['label']) # constructs a StringIO holding the image
+        im_barcode = StringIO.StringIO(endicia_res['label'])  # constructs a StringIO holding the image
         img_barcode = Image.open(im_barcode)
         output = StringIO.StringIO()
         img_barcode.save(output, format='PNG')
@@ -268,21 +276,21 @@ class shipping_response(models.Model):
         f.close()
         c = canvas.Canvas("/tmp/picking_list.pdf")
         c.setPageSize((400, 650))
-        c.drawImage('/tmp/test.png',10,10,380,630)
+        c.drawImage('/tmp/test.png', 10, 10, 380, 630)
         c.save()
         f = open('/tmp/picking_list.pdf', 'rb')
 
         attachment_pool = self.env['ir.attachment']
         data_attach = {
-            'name': 'PackingList_USPS.pdf', 
-            'datas_fname': 'PackingList_USPS.pdf', 
+            'name': 'PackingList_USPS.pdf',
+            'datas_fname': 'PackingList_USPS.pdf',
             'datas': base64.b64encode(f.read()),
             'description': 'Packing List',
             'res_name': picking.name,
             'res_model': 'stock.picking',
             'res_id': picking.id,
         }
-        attach_id = attachment_pool.search([('res_id','=',picking.id),('res_name','=',picking.name)])
+        attach_id = attachment_pool.search([('res_id', '=', picking.id), ('res_name', '=', picking.name)])
         if not attach_id:
             attach_id = attachment_pool.create(data_attach)
             os.remove('/tmp/test.png')
@@ -293,21 +301,23 @@ class shipping_response(models.Model):
         context['attach_id'] = attach_id
 
         if endicia_res['tracking']:
-            carrier_id = self.env['delivery.carrier'].search([('service_code','=',picking.service_type_usps),('container_usps','=',picking.container_usps)])
+            carrier_id = self.env['delivery.carrier'].search(
+                [('service_code', '=', picking.service_type_usps), ('container_usps', '=', picking.container_usps)])
             if len(carrier_id):
                 carrier_id = carrier_id[0]
                 cost = endicia_res['cost']
             else:
                 carrier_id = False
-                cost= False
+                cost = False
             vals = {
-                    'carrier_tracking_ref':endicia_res['tracking'],
-                    'carrier_id':carrier_id.id,
-                    'shipping_rate':cost
-                    }
+                'carrier_tracking_ref': endicia_res['tracking'],
+                'carrier_id': carrier_id.id,
+                'shipping_rate': cost
+            }
             picking.write(vals)
             context['track_success'] = True
             context['tracking_no'] = endicia_res['tracking']
         return True
+
 
 shipping_response()

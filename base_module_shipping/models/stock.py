@@ -18,47 +18,17 @@
 #
 ##############################################################################
 
-from odoo import models, fields, api, _
-from odoo.osv import osv
-import urllib
-from base64 import b64decode
-from base64 import b64encode
 import binascii
-import time
-from reportlab.lib.enums import TA_CENTER
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import *
-from reportlab.pdfgen.canvas import Canvas
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.lib.units import inch
-from reportlab.lib import colors
-from reportlab.platypus import Paragraph, Frame, Spacer, Image, Table, TableStyle, SimpleDocTemplate
-from reportlab.graphics.charts.barcharts import VerticalBarChart
-from reportlab.graphics.shapes import Drawing
-from reportlab.graphics.charts.textlabels import Label
-from reportlab.graphics.charts.legends import Legend
-import odoo.addons.decimal_precision as dp
-import socket
-import datetime
-import base64
-import base64
-import cStringIO
-import StringIO
-import binascii
-import os
-import Image
-import cStringIO
-import StringIO
-import time
-from . import shippingservice
-from miscellaneous import Address
-import suds
-from suds.client import Client
-from odoo.tools.translate import _
 import logging
+from base64 import b64decode
+
+import odoo.addons.decimal_precision as dp
+from . miscellaneous import Address
+
+from odoo import models, fields, api
+from odoo.osv import osv
+from odoo.tools.translate import _
+from . import shippingservice
 
 logging.basicConfig(level=logging.INFO)
 logging.getLogger('suds.client').setLevel(logging.DEBUG)
@@ -487,7 +457,7 @@ class stock_picking(models.Model):
             attach_result = attach_id.write(data_attach)
         return attach_id
 
-    @api.multi
+    #@api.multi
     def generate_shipping(self):
         '''
         This function is used to Get the shipping Rates in Delivery Order
@@ -658,12 +628,12 @@ class stock_picking(models.Model):
         if product_shipping_ids:
             self._cr.execute(
                 'SELECT * FROM product_product_shipping WHERE weight <= %s and product_id=%s order by sequence desc limit 1' % (
-                weight, product_id))
+                    weight, product_id))
         else:
             categ_id = product_obj.browse(product_id).product_tmpl_id.categ_id.id
             self._cr.execute(
                 'SELECT * FROM product_category_shipping WHERE weight <= %s and product_categ_id=%s order by sequence desc limit 1' % (
-                weight, categ_id))
+                    weight, categ_id))
         res = self._cr.dictfetchall()
         logger.info('res==jkjk===> %s', res)
         if res:
@@ -705,7 +675,7 @@ class stock_picking(models.Model):
                 sys_default = res[0]['shipping_type'] + '/' + service_type_fedex + '/' + 'YOUR_PACKAGING'
         return sys_default
 
-    @api.multi
+    #@api.multi
     def get_min_shipping_rate(self, sale_id, product_shipping_ids, weight):
         context = dict(self._context or {})
         shipment_types = {
@@ -948,7 +918,7 @@ class stock_picking(models.Model):
             weight += line.product_id.product_tmpl_id.weight_net * product_qty
         return weight
 
-    @api.multi
+    #@api.multi
     def _get_heaviest_product(self, id, lines):
         '''
         This function is used to Get heaviest product id to get the carrier type in delivery order based on product or product category conf

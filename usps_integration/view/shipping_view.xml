@@ -54,7 +54,7 @@
             <field name="name">USPS Settings</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">shipping.usps</field>
-            <field name="view_type">form</field>
+<!--            <field name="view_type">form</field>-->
             <field name="view_id" ref="shipping_usps_tree"/>
             <field name="help">Key in Server name and User ID which you get from USPS website.</field>
         </record>

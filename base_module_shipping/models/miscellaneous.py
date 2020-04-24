@@ -20,8 +20,10 @@
 
 import re
 
+
 class Address(object):
-    def __init__(self, name, address, address2, city, state_code, zip, country_code, phone='', email='', company_name='', country='', is_residence=True):
+    def __init__(self, name, address, address2, city, state_code, zip, country_code, phone='', email='',
+                 company_name='', country='', is_residence=True):
         self.company_name = company_name or ''
         self.name = name or ''
         self.address1 = address or ''
@@ -39,4 +41,5 @@ class Address(object):
         return vars(self) == vars(other)
 
     def __repr__(self):
-        return (self.company_name, self.name, self.address1 , self.address2, self.city, self.state_code, self.zip, self.country_code, self.phone, self.email)
+        return (self.company_name, self.name, self.address1, self.address2, self.city, self.state_code, self.zip,
+                self.country_code, self.phone, self.email)

@@ -1,3 +1,3 @@
-import refund_request
-import change_passphrase
-import buying_postage
+from . import refund_request
+from . import change_passphrase
+from . import buying_postage

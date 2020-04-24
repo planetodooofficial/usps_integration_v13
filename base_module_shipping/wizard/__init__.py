@@ -19,6 +19,6 @@
 #
 ##############################################################################
 
-import generate_shipping_quotes
-import generate_label_pdf
-import refund
+from . import generate_shipping_quotes
+from . import generate_label_pdf
+from . import refund

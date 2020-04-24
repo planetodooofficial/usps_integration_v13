@@ -18,12 +18,13 @@
 #
 ##############################################################################
 
-from odoo.osv import fields, osv
-from odoo import models, fields, api, _
+from odoo import models, fields
+
 
 class res_partner(models.Model):
     _inherit = "res.partner"
 
-    invalid_addr = fields.Boolean(string = 'Invalid Address',readonly=True)
+    invalid_addr = fields.Boolean(string='Invalid Address', readonly=True)
+
 
 res_partner()

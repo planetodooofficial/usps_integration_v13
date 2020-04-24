@@ -22,11 +22,9 @@
         
         <act_window name="Print Label"
                 res_model="generate.label.pdf"
-                src_model="stock.picking"
+                binding_model="stock.picking"
                 view_mode="form"
-                multi="True"
                 target="new"
-                key2="client_action_multi"
                 id="delivery_order_generate_merge_pdf_labels"
                 groups="base_module_shipping.group_shipping_manager"
                 />

@@ -17,11 +17,11 @@
 #    <http://www.gnu.org/licenses/gpl.html>.
 #
 ##############################################################################
-import shipping_conf
-import delivery
-import product
-import sale
-import shipping
-import stock
+from . import shipping_conf
+from . import delivery
+from . import product
+from . import sale
+from . import shipping
+from . import stock
 
 

@@ -18,35 +18,29 @@
 #
 ##############################################################################
 
-from odoo.osv import osv
-from odoo.tools.translate import _
-import cStringIO
-from datetime import datetime
-import random
-import StringIO
-import time
-import base64
-from base64 import b64decode
-from PyPDF2 import PdfFileMerger, PdfFileReader
-from odoo import models, fields, api, _
-import binascii
-import commands
 import os
+import random
+from base64 import b64decode
+from datetime import datetime
+
+from PyPDF2 import PdfFileMerger, PdfFileReader
+
+from odoo import models, _
+from odoo.osv import osv
 
 
 class generate_label_pdf(models.TransientModel):
     _name = "generate.label.pdf"
     _description = "Generate Label PDF"
-     
-     
-    @api.multi
+
+    # @api.multi
     def print_lable(self):
         picking_object = self.env['stock.picking']
         para = self.env["ir.config_parameter"]
         attachment_pool = self.env['ir.attachment']
         ip_address = para.get_param("web.base.url")
         dir_loc = os.path.dirname(os.path.abspath(__file__))
-        a= dir_loc.split('/')
+        a = dir_loc.split('/')
         a.pop()
         path = ""
         for i in a:
@@ -54,36 +48,37 @@ class generate_label_pdf(models.TransientModel):
                 path = ""
             path += i + '/'
         new_path = path + 'static/src/'
-        random_sequence = random.sample(range(1,1000),1)
-        batch_file =  str(new_path) + '/sevicelabel' + str(random_sequence[0]) + '.pdf'
-        
+        random_sequence = random.sample(range(1, 1000), 1)
+        batch_file = str(new_path) + '/sevicelabel' + str(random_sequence[0]) + '.pdf'
+
         if os.path.exists(batch_file):
             os.remove(batch_file)
-        
+
         merger = PdfFileMerger()
         i = datetime.now()
         date = i.strftime('%Y/%m/%d %H:%M:%S')
         for pick in picking_object.browse(self._context.get('active_ids')):
-            attachment_ids = attachment_pool.search([('res_id','=',pick.id)])
+            attachment_ids = attachment_pool.search([('res_id', '=', pick.id)])
             if attachment_ids:
                 for i in attachment_ids:
                     a_obj = i
-                    file1 = new_path +str(pick.id)+".pdf"
+                    file1 = new_path + str(pick.id) + ".pdf"
                     f = open(file1, 'wb')
                     f.write(b64decode(a_obj.datas))
                     f.close()
                     merger.append(PdfFileReader(file(file1, 'rb')))
-                pick.write({'label_printed' : True, 'label_printed_datetime' : date})
+                pick.write({'label_printed': True, 'label_printed_datetime': date})
         merger.write(str(batch_file))
         self._cr.commit()
         if attachment_ids:
-            url =  ip_address + "/base_module_shipping/static/src" + '/sevicelabel' + str(random_sequence[0]) + '.pdf'
+            url = ip_address + "/base_module_shipping/static/src" + '/sevicelabel' + str(random_sequence[0]) + '.pdf'
             return {
-                            'type': 'ir.actions.act_url',
-                            'url': url,
-                            'target': 'new'
-                    }
+                'type': 'ir.actions.act_url',
+                'url': url,
+                'target': 'new'
+            }
         if not attachment_ids:
-           raise osv.except_osv(_('Error'), _('No Attachment Found!'),)
+            raise osv.except_osv(_('Error'), _('No Attachment Found!'), )
+
 
 generate_label_pdf()

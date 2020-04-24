@@ -29,7 +29,7 @@ destconfirm_type = ['7X3','6X4','Dymo30384','Mailer7x5','EnvelopeSize10']
 class shipping_usps(models.Model):
     _inherit = 'shipping.usps'
     
-    @api.multi
+    #@api.multi
     def write_passphrase(self, new_passphrase):
         ship_endicia_id = self.search([('active','=',True)])
         if not ship_endicia_id:
@@ -42,7 +42,7 @@ class shipping_usps(models.Model):
             ship_endicia_id = ship_endicia_id[0]
         return ship_endicia_id.write({'passphrase':new_passphrase})
     
-    @api.multi
+    #@api.multi
     def get_endicia_info(self):
         ship_endicia_id = self.search([('active','=',True)])
         if not ship_endicia_id:
@@ -52,7 +52,7 @@ class shipping_usps(models.Model):
         return ship_endicia_id
     
     
-    @api.multi
+    #@api.multi
     def get_usps_info(self):
         ship_usps_id = self.search([('active_usps','=',True)])
         if not ship_usps_id:

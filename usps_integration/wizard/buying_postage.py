@@ -1,11 +1,10 @@
-from odoo.osv import osv
-from odoo import models, fields, api, _
-from odoo.tools.translate import _
-from odoo.addons.usps_integration.models import endicia
-import datetime
 import logging
-import time
-import commands
+
+from custom.usps_integration_v13.usps_integration.models import endicia
+from odoo import models, fields
+from odoo.osv import osv
+from odoo.tools.translate import _
+# import commands
 _logger = logging.getLogger(__name__)
 
 
@@ -13,14 +12,13 @@ class buying_postage(models.TransientModel):
     _name = "buying.postage"
     _description = "Buying Postage"
 
-
-    @api.multi
+    # @api.multi
     def action_buy_postge(self):
-        '''
-        This function is used to Recredit Endicia Account
-        parameters: 
+        """
+        This function is used to Re-credit Endicia Account
+        parameters:
             No Parameters
-        '''
+        """
         ship_endicia = self.env['shipping.usps'].get_endicia_info()
         requester_id = ship_endicia.requester_id
         account_id = ship_endicia.account_id
@@ -35,17 +33,17 @@ class buying_postage(models.TransientModel):
             request = endicia.RecreditRequest(requester_id, account_id, passphrase, tot_rate, debug=debug)
             response = request.send()
             buy_postage_resp = response._get_value()
-        except Exception, e:
+        except Exception as e:
             raise osv.except_osv(_('Error'), _('Error buying postage'))
 
-
-        message = _('Remaining postage balance: %s\nTotal amount of postage printed: %s' % (buy_postage_resp['postage_balance'], buy_postage_resp['postage_printed']))
+        message = _('Remaining postage balance: %s\nTotal amount of postage printed: %s' % (
+            buy_postage_resp['postage_balance'], buy_postage_resp['postage_printed']))
         if message:
             raise osv.except_osv(_('Message'), _(message))
 
-
         return {'type': 'ir.actions.act_window_close'}
 
-    name =  fields.Float(string='Total Rate')
+    name = fields.Float(string='Total Rate')
+
 
 buying_postage()
