@@ -4,7 +4,6 @@
         <record id="view_buying_postage" model="ir.ui.view">
             <field name="name">Buying Postage Form</field>
             <field name="model">buying.postage</field>
-            <field name="type">form</field>
             <field name="arch" type="xml">
                 <form string="Buying Postage">
                     <separator string="Recredit Amount" colspan="4" col="2" />
@@ -18,9 +17,7 @@
             </field>
         </record>
 
-        <act_window id="act_buying_postage"
-            multi="True"
-            key2="client_action_multi" name="Buy USPS Postage"
+        <act_window id="act_buying_postage" name="Buy USPS Postage"
             res_model="buying.postage" binding_model="shipping.usps"
             view_mode="form" target="new"/>
 

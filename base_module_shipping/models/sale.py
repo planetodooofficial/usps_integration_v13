@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 ##############################################################################
-#    Copyright (c) 2015 - Present Teckzilla Software Solutions Pvt. Ltd. All Rights Reserved
-#    Author: [Teckzilla Software Solutions]  <[sales@teckzilla.net]>
+#    Copyright (c) 2015 - Present Planet Odoo. All Rights Reserved
+#    Author: [Planet Odoo]
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -18,13 +18,13 @@
 #
 ##############################################################################
 
-from odoo import models, fields, api, _
-from odoo.osv import osv
-import odoo.addons.decimal_precision as dp
-from .miscellaneous import Address
-import urllib
-from . import shippingservice
 import logging
+
+import odoo.addons.decimal_precision as dp
+
+from odoo import models, fields
+from . import shippingservice
+from .miscellaneous import Address
 
 logging.basicConfig(level=logging.INFO)
 logging.getLogger('suds.client').setLevel(logging.DEBUG)
@@ -48,6 +48,7 @@ class sale_order(models.Model):
             #            raise wizard.except_wizard(_('Error !'), _('Sales journal not defined.'))
             return False
 
+    project_id = fields.Many2one('project.project', string='Project', readonly=True)
     use_shipping = fields.Boolean(string='Use Shipping', default=True)
     shipping_type = fields.Selection(_get_shipping_type, string='Shipping Type', default='All')
     weight_package = fields.Float(string='Package Weight', digits_compute=dp.get_precision('Stock Weight'),
@@ -72,7 +73,7 @@ class sale_order(models.Model):
     is_one_day_expedited = fields.Boolean(string='Is One Day Expedited')
     is_two_day_expedited = fields.Boolean(string='Is Two Day Expedited')
     sku = fields.Char(string='sku', size=64)
-    # defult feld
+    # default field
     invalid_addr = fields.Boolean(string='Invalid Address', readonly=True)
     client_order_ref = fields.Char(string='Tracking Number', size=64)
     journal_id = fields.Many2one('account.journal', string='Journal', readonly=True, default=_default_journal)
@@ -80,11 +81,11 @@ class sale_order(models.Model):
 
     # @api.multi
     def generate_shipping_order(self):
-        '''
+        """
         This function is used to Get the shipping Rates in sale order
-        parameters: 
+        parameters:
             No parameters
-        '''
+        """
         context = self._context.copy()
         picking_obj = self.env['stock.picking']
         if context is None:
@@ -125,7 +126,7 @@ class sale_order(models.Model):
                               cust_address.state_id.code or '', cust_address.zip, cust_address.country_id.code,
                               cust_address.phone or '', cust_address.email, cust_address.name)
 
-            ### Recipient
+            # Recipient
             cust_address = stockpicking.partner_id
             receipient = Address(cust_address.name, cust_address.street, cust_address.street2 or '', cust_address.city,
                                  cust_address.state_id.code or '', cust_address.zip, cust_address.country_id.code,

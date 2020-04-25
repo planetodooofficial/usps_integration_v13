@@ -6,7 +6,6 @@
             <field name="name">product.category.shipping.inherit1</field>
             <field name="model">product.category</field>
             <field name="inherit_id" ref="product.product_category_form_view" />
-            <field name="type">form</field>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='parent_id']" position="after">
                     <separator string="Shipping Information" colspan="4" groups="base_module_shipping.group_shipping_manager" />
@@ -32,7 +31,7 @@
             <field name="name">product.product.shipping.inherit1</field>
             <field name="model">product.product</field>
             <field name="inherit_id" ref="product.product_normal_form_view"/>
-            <field name="type">form</field>
+
             <field name="arch" type="xml">
                 <xpath expr="/form/sheet/notebook" position="inside">
                    <page string="Shipping Method" groups="base_module_shipping.group_shipping_manager">

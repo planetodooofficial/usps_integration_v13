@@ -5,7 +5,7 @@
         <record id="view_label_merger" model="ir.ui.view">
             <field name="name">Print Label</field>
             <field name="model">generate.label.pdf</field>
-            <field name="type">form</field>
+
             <field name="arch" type="xml">
                 <form string="Generate Label">
                     <separator string="Print Label" colspan="4" col="2" />

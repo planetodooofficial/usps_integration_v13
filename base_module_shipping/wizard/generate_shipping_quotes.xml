@@ -4,7 +4,7 @@
         <record id="view_generate_shipping_quotes" model="ir.ui.view">
             <field name="name">Generate Labels</field>
             <field name="model">generate.shipping.quotes</field>
-            <field name="type">form</field>
+
             <field name="arch" type="xml">
                 <form string="Generate Shipping Quotes">
                     <field name="name"/>

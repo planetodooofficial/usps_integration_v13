@@ -4,7 +4,6 @@
         <record id="view_change_passphrase" model="ir.ui.view">
             <field name="name">Change Passphrase Form</field>
             <field name="model">change.passphrase</field>
-            <field name="type">form</field>
             <field name="arch" type="xml">
                 <form string="Change Passphrase">
                     <separator string="New Passphrase" colspan="4" col="2" />
@@ -22,9 +21,7 @@
         
         
 
-        <act_window id="act_change_passphrase"
-            multi="True"
-            key2="client_action_multi" name="Change Passphrase"
+        <act_window id="act_change_passphrase" name="Change Passphrase"
             res_model="change.passphrase" binding_model="shipping.usps"
             view_mode="form" target="new" />
 

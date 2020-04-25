@@ -5,7 +5,6 @@
         <record id="shipping_usps_form" model="ir.ui.view">
             <field name="name">shipping.usps.form</field>
             <field name="model">shipping.usps</field>
-            <field name="type">form</field>
             <field name="arch" type="xml">
                 <form string="USPS Settings">
                     <notebook colspan="4">
@@ -41,7 +40,6 @@
         <record id="shipping_usps_tree" model="ir.ui.view">
             <field name="name">shipping.usps.tree</field>
             <field name="model">shipping.usps</field>
-            <field name="type">tree</field>
             <field name="arch" type="xml">
                 <tree string="USPS Settings">
                     <field name="name_usps"/>

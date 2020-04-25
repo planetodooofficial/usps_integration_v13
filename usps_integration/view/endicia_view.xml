@@ -5,7 +5,6 @@
         <record id="usps_inherit_setting_view_for_endicia" model="ir.ui.view">
             <field name="name">usps.inherit.setting.view.for.endicia</field>
             <field name="model">shipping.usps</field>
-            <field name="type">form</field>
             <field name="inherit_id" ref="shipping_usps_form" />
             <field name="arch" type="xml">
                <xpath expr="/form/notebook" position="inside">

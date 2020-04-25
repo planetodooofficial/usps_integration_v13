@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 ##############################################################################
-#Copyright (c) 2015 - Present Teckzilla Software Solutions Pvt. Ltd. All Rights Reserved
-#    Author: [Teckzilla Software Solutions]  <[sales@teckzilla.net]>
+#Copyright (c) 2015 - Present Planet Odoo. All Rights Reserved
+#    Author: [Planet Odoo]
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -26,8 +26,8 @@
     'description': """
      Odoo Integration with USPS, UPS and Fedex
     """,
-    "website" : "www.teckzilla.net",
-    'author': 'Teckzilla Software Solutions',
+    "website" : "www.planet-odoo.com",
+    'author': 'Planet Odoo',
     'depends': ['sale','stock','delivery','product','sale_stock'],
     'css': [
         'static/src/css/rotate_label.css',

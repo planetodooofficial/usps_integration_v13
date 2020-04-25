@@ -5,7 +5,6 @@
             <record id="product_category_view_tree_for_usps" model="ir.ui.view">
                 <field name="name">product.category.view.tree.for.usps</field>
                 <field name="model">product.category</field>
-                <field name="type">form</field>
                 <field name="inherit_id" ref="base_module_shipping.view_product_category_shipping_inherit1" />
                 <field name="arch" type="xml">
                     <xpath expr="//field[@name='product_categ_shipping_ids']/tree//field[@name='shipping_type']" position="after">
@@ -23,7 +22,6 @@
         <record id="product_product_view_tree_for_ups" model="ir.ui.view">
         <field name="name">product.product.view.tree.for.ups</field>
         <field name="model">product.product</field>
-        <field name="type">form</field>
         <field name="inherit_id" ref="base_module_shipping.view_product_product_shipping_inherit1" />
         <field name="arch" type="xml">
                 <xpath expr="//field[@name='product_shipping_ids']/tree//field[@name='shipping_type']" position="after">

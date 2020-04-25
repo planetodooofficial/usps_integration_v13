@@ -4,7 +4,7 @@
         <record id="view_refund_request" model="ir.ui.view">
             <field name="name">Refund Request Form</field>
             <field name="model">refund.request</field>
-            <field name="type">form</field>
+
             <field name="arch" type="xml">
                 <form string="Refund Request">
                     <separator string="Refund Request" colspan="4" col="2" />
@@ -20,9 +20,7 @@
                 res_model="refund.request"
                 binding_model="stock.picking"
                 view_mode="form"
-                multi="True"
                 target="new"
-                key2="client_action_multi"
                 id="view_refund_request_action"
                 groups="base_module_shipping.group_shipping_manager"
                 />
