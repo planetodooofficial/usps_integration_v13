@@ -25,12 +25,9 @@ import urllib
 class sale_order(models.Model):
     _inherit = "sale.order"
     
-    def _get_shipping_type(self):
-        res = super(sale_order, self)._get_shipping_type()
-        res.append(('USPS','USPS'))
-        return res
+
     
-    shipping_type = fields.Selection(_get_shipping_type,'Shipping Type', default='All')
+    shipping_type = fields.Selection(['USPS','USPS'],'Shipping Type', default='All')
     
     def _get_service_type_usps(self):
         return [

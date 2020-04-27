@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-
 <!--        <record id="view_shop_form_shp1" model="ir.ui.view">
            <field name="name">sale.shop.form.shp1</field>
            <field name="model">sale.shop</field>
@@ -14,21 +13,20 @@
            </field>
        </record>-->
 
-    	<record id="view_order_form_inherit_frm_shp1" model="ir.ui.view">
-            <field name="name">sale.order.form.inherit.frm.shp1</field>
-            <field name="model">sale.order</field>
-            <field name="inherit_id" ref="sale.view_order_form" />
-            <field name="arch" type="xml">
-<!--                <field name="project_id" position="after">-->
-<!--                   <field name="invalid_addr"/>-->
-<!--                </field>-->
-            </field>
-        </record>
+<!--    	<record id="view_order_form_inherit_frm_shp1" model="ir.ui.view">-->
+<!--            <field name="name">sale.order.form.inherit.frm.shp1</field>-->
+<!--            <field name="model">sale.order</field>-->
+<!--            <field name="inherit_id" ref="sale.view_order_form" />-->
+<!--            <field name="arch" type="xml">-->
+<!--&lt;!&ndash;                <field name="project_id" position="after">&ndash;&gt;-->
+<!--&lt;!&ndash;                   <field name="invalid_addr"/>&ndash;&gt;-->
+<!--&lt;!&ndash;                </field>&ndash;&gt;-->
+<!--            </field>-->
+<!--        </record>-->
 
         <record id="view_order_form_inherit_frm_shp2" model="ir.ui.view">
             <field name="name">sale.order.form.inherit.frm.shp2</field>
             <field name="model">sale.order</field>
-
             <field name="inherit_id" ref="sale.view_order_form" />
             <field name="arch" type="xml">
                 <field domain="[('type','=','sale')]" name="pricelist_id" position="after" >
@@ -40,7 +38,6 @@
         <record id="view_sales_order_filter_inherit1" model="ir.ui.view">
             <field name="name">sale.order.list.select.inherit1</field>
             <field name="model">sale.order</field>
-            <field name="type">search</field>
             <field name="inherit_id" ref="sale.view_sales_order_filter" />
             <field name="arch" type="xml">
                 <field name="user_id" position="after">
@@ -53,7 +50,6 @@
             <field name="name">sale.order.shipping.form</field>
             <field name="model">sale.order</field>
             <field name="inherit_id" ref="sale.view_order_form"/>
-
             <field name="arch" type="xml">
                    <xpath expr="/form/sheet/notebook" position="inside">
                         <page string="Shipping Info" groups="base_module_shipping.group_shipping_manager">

@@ -20,12 +20,12 @@
 
 from odoo import models, fields, api, _
 
+
 class delivery_carrier(models.Model):
     _inherit = "delivery.carrier"
-    
-    
+
     service_code = fields.Char(string='Service Code', help="Code used as input to API")
     service_output = fields.Char(string='Service Output', help="Code returned as output by API")
     is_expedited = fields.Boolean(string='Is Expedited')
-    
-delivery_carrier()
+    partner_id = fields.Many2one('res.partner', string='Recipient', required=True)
+    size_usps = fields.Selection([('REGULAR', 'Regular'),('LARGE', 'Large')], string='Size')

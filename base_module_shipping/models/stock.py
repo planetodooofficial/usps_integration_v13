@@ -118,114 +118,162 @@ class shipping_response(models.Model):
     selected = fields.Boolean(string='Selected', default=False)
     picking_id = fields.Many2one('stock.picking', string='Picking')
 
+def _get_size_usps():
+    return [
+        ('REGULAR', 'Regular'),
+        ('LARGE', 'Large'),
+    ]
 
-shipping_response()
+
+def _get_container_usps():
+    return [
+        ('Variable', 'Variable'),
+        ('Card', 'Card'),
+        ('Letter', 'Letter'),
+        ('Flat', 'Flat'),
+        ('Parcel', 'Parcel'),
+        ('Large Parcel', 'Large Parcel'),
+        ('Irregular Parcel', 'Irregular Parcel'),
+        ('Oversized Parcel', 'Oversized Parcel'),
+        ('Flat Rate Envelope', 'Flat Rate Envelope'),
+        ('Padded Flat Rate Envelope', 'Padded Flat Rate Envelope'),
+        ('Legal Flat Rate Envelope', 'Legal Flat Rate Envelope'),
+        ('SM Flat Rate Envelope', 'SM Flat Rate Envelope'),
+        ('Window Flat Rate Envelope', 'Window Flat Rate Envelope'),
+        ('Gift Card Flat Rate Envelope', 'Gift Card Flat Rate Envelope'),
+        ('Cardboard Flat Rate Envelope', 'Cardboard Flat Rate Envelope'),
+        ('Flat Rate Box', 'Flat Rate Box'),
+        ('SM Flat Rate Box', 'SM Flat Rate Box'),
+        ('MD Flat Rate Box', 'MD Flat Rate Box'),
+        ('LG Flat Rate Box', 'LG Flat Rate Box'),
+        ('RegionalRateBoxA', 'RegionalRateBoxA'),
+        ('RegionalRateBoxB', 'RegionalRateBoxB'),
+        ('Rectangular', 'Rectangular'),
+        ('Non-Rectangular', 'Non-Rectangular'),
+    ]
+
+
+def _get_service_type_ups():
+    return [
+        ('01', 'Next Day Air'),
+        ('02', 'Second Day Air'),
+        ('03', 'Ground'),
+        ('07', 'Worldwide Express'),
+        ('08', 'Worldwide Expedited'),
+        ('11', 'Standard'),
+        ('12', 'Three-Day Select'),
+        ('13', 'Next Day Air Saver'),
+        ('14', 'Next Day Air Early AM'),
+        ('54', 'Worldwide Express Plus'),
+        ('59', 'Second Day Air AM'),
+        ('65', 'Saver'),
+        ('86', 'Express Saver'),
+    ]
+
+
+def _get_service_type_fedex():
+    return [
+        ('EUROPE_FIRST_INTERNATIONAL_PRIORITY', 'EUROPE_FIRST_INTERNATIONAL_PRIORITY'),
+        ('FEDEX_1_DAY_FREIGHT', 'FEDEX_1_DAY_FREIGHT'),
+        ('FEDEX_2_DAY', 'FEDEX_2_DAY'),
+        ('FEDEX_2_DAY_FREIGHT', 'FEDEX_2_DAY_FREIGHT'),
+        ('FEDEX_3_DAY_FREIGHT', 'FEDEX_3_DAY_FREIGHT'),
+        ('FEDEX_EXPRESS_SAVER', 'FEDEX_EXPRESS_SAVER'),
+        ('STANDARD_OVERNIGHT', 'STANDARD_OVERNIGHT'),
+        ('PRIORITY_OVERNIGHT', 'PRIORITY_OVERNIGHT'),
+        ('FEDEX_GROUND', 'FEDEX_GROUND'),
+    ]
+
+
+def _get_first_class_mail_type_usps():
+    return [
+        ('Letter', 'Letter'),
+        ('Flat', 'Flat'),
+        ('Parcel', 'Parcel'),
+        ('Postcard', 'Postcard'),
+    ]
+
+
+def _get_service_type_usps():
+    return [
+        ('First Class', 'First Class'),
+        ('First Class HFP Commercial', 'First Class HFP Commercial'),
+        ('FirstClassMailInternational', 'First Class Mail International'),
+        ('Priority', 'Priority'),
+        ('Priority Commercial', 'Priority Commercial'),
+        ('Priority HFP Commercial', 'Priority HFP Commercial'),
+        ('PriorityMailInternational', 'Priority Mail International'),
+        ('Express', 'Express'),
+        ('Express Commercial', 'Express Commercial'),
+        ('Express SH', 'Express SH'),
+        ('Express SH Commercial', 'Express SH Commercial'),
+        ('Express HFP', 'Express HFP'),
+        ('Express HFP Commercial', 'Express HFP Commercial'),
+        ('ExpressMailInternational', 'Express Mail International'),
+        ('ParcelPost', 'Parcel Post'),
+        ('ParcelSelect', 'Parcel Select'),
+        ('StandardMail', 'Standard Mail'),
+        ('CriticalMail', 'Critical Mail'),
+        ('Media', 'Media'),
+        ('Library', 'Library'),
+        ('All', 'All'),
+        ('Online', 'Online'),
+    ]
+
+
+def _get_shipping_type():
+    return [
+        ('All', 'All'),
+    ]
+
+
+def get_ups_servicetype_name(code, mag_code=False):
+    if code:
+        if code == '01':
+            return 'Next Day Air'
+        elif code == '02':
+            return 'Second Day Air'
+        elif code == '03':
+            return 'Ground'
+        elif code == '07':
+            return 'Worldwide Express'
+        elif code == '08':
+            return 'Worldwide Expedited'
+        elif code == '11':
+            return 'Standard'
+        elif code == '12':
+            return 'Three-Day Select'
+        elif code == '13':
+            return 'Next Day Air Saver'
+        elif code == '14':
+            return 'Next Day Air Early AM'
+        elif code == '54':
+            return 'Worldwide Express Plus'
+        elif code == '59':
+            return 'Second Day Air AM'
+        elif code == '65':
+            return 'Saver'
+        else:
+            return False
+    elif mag_code:
+        if mag_code == 'ups_3DS':
+            return 'Three-Day Select'
+        elif mag_code == 'ups_GND':
+            return 'Ground'
+        elif mag_code == 'ups_2DA':
+            return 'Second Day Air'
+        elif mag_code == 'ups_1DP':
+            return 'Next Day Air Saver'
+        elif mag_code == 'ups_1DA':
+            return 'Next Day Air'
+        elif mag_code == 'ups_1DM':
+            return 'Next Day Air Early AM'
+    else:
+        return False
 
 
 class stock_picking(models.Model):
     _inherit = "stock.picking"
-
-    def _get_shipping_type(self):
-        return [
-            ('All', 'All'),
-        ]
-
-    def _get_service_type_usps(self):
-        return [
-            ('First Class', 'First Class'),
-            ('First Class HFP Commercial', 'First Class HFP Commercial'),
-            ('FirstClassMailInternational', 'First Class Mail International'),
-            ('Priority', 'Priority'),
-            ('Priority Commercial', 'Priority Commercial'),
-            ('Priority HFP Commercial', 'Priority HFP Commercial'),
-            ('PriorityMailInternational', 'Priority Mail International'),
-            ('Express', 'Express'),
-            ('Express Commercial', 'Express Commercial'),
-            ('Express SH', 'Express SH'),
-            ('Express SH Commercial', 'Express SH Commercial'),
-            ('Express HFP', 'Express HFP'),
-            ('Express HFP Commercial', 'Express HFP Commercial'),
-            ('ExpressMailInternational', 'Express Mail International'),
-            ('ParcelPost', 'Parcel Post'),
-            ('ParcelSelect', 'Parcel Select'),
-            ('StandardMail', 'Standard Mail'),
-            ('CriticalMail', 'Critical Mail'),
-            ('Media', 'Media'),
-            ('Library', 'Library'),
-            ('All', 'All'),
-            ('Online', 'Online'),
-        ]
-
-    def _get_first_class_mail_type_usps(self):
-        return [
-            ('Letter', 'Letter'),
-            ('Flat', 'Flat'),
-            ('Parcel', 'Parcel'),
-            ('Postcard', 'Postcard'),
-        ]
-
-    def _get_service_type_fedex(self):
-        return [
-            ('EUROPE_FIRST_INTERNATIONAL_PRIORITY', 'EUROPE_FIRST_INTERNATIONAL_PRIORITY'),
-            ('FEDEX_1_DAY_FREIGHT', 'FEDEX_1_DAY_FREIGHT'),
-            ('FEDEX_2_DAY', 'FEDEX_2_DAY'),
-            ('FEDEX_2_DAY_FREIGHT', 'FEDEX_2_DAY_FREIGHT'),
-            ('FEDEX_3_DAY_FREIGHT', 'FEDEX_3_DAY_FREIGHT'),
-            ('FEDEX_EXPRESS_SAVER', 'FEDEX_EXPRESS_SAVER'),
-            ('STANDARD_OVERNIGHT', 'STANDARD_OVERNIGHT'),
-            ('PRIORITY_OVERNIGHT', 'PRIORITY_OVERNIGHT'),
-            ('FEDEX_GROUND', 'FEDEX_GROUND'),
-        ]
-
-    def _get_service_type_ups(self):
-        return [
-            ('01', 'Next Day Air'),
-            ('02', 'Second Day Air'),
-            ('03', 'Ground'),
-            ('07', 'Worldwide Express'),
-            ('08', 'Worldwide Expedited'),
-            ('11', 'Standard'),
-            ('12', 'Three-Day Select'),
-            ('13', 'Next Day Air Saver'),
-            ('14', 'Next Day Air Early AM'),
-            ('54', 'Worldwide Express Plus'),
-            ('59', 'Second Day Air AM'),
-            ('65', 'Saver'),
-            ('86', 'Express Saver'),
-        ]
-
-    def _get_container_usps(self):
-        return [
-            ('Variable', 'Variable'),
-            ('Card', 'Card'),
-            ('Letter', 'Letter'),
-            ('Flat', 'Flat'),
-            ('Parcel', 'Parcel'),
-            ('Large Parcel', 'Large Parcel'),
-            ('Irregular Parcel', 'Irregular Parcel'),
-            ('Oversized Parcel', 'Oversized Parcel'),
-            ('Flat Rate Envelope', 'Flat Rate Envelope'),
-            ('Padded Flat Rate Envelope', 'Padded Flat Rate Envelope'),
-            ('Legal Flat Rate Envelope', 'Legal Flat Rate Envelope'),
-            ('SM Flat Rate Envelope', 'SM Flat Rate Envelope'),
-            ('Window Flat Rate Envelope', 'Window Flat Rate Envelope'),
-            ('Gift Card Flat Rate Envelope', 'Gift Card Flat Rate Envelope'),
-            ('Cardboard Flat Rate Envelope', 'Cardboard Flat Rate Envelope'),
-            ('Flat Rate Box', 'Flat Rate Box'),
-            ('SM Flat Rate Box', 'SM Flat Rate Box'),
-            ('MD Flat Rate Box', 'MD Flat Rate Box'),
-            ('LG Flat Rate Box', 'LG Flat Rate Box'),
-            ('RegionalRateBoxA', 'RegionalRateBoxA'),
-            ('RegionalRateBoxB', 'RegionalRateBoxB'),
-            ('Rectangular', 'Rectangular'),
-            ('Non-Rectangular', 'Non-Rectangular'),
-        ]
-
-    def _get_size_usps(self):
-        return [
-            ('REGULAR', 'Regular'),
-            ('LARGE', 'Large'),
-        ]
 
     def do_print_picking(self, cr, uid, ids, context=None):
         '''This function prints the picking list'''
@@ -243,50 +291,6 @@ class stock_picking(models.Model):
                 return False
             self.pool.get('stock.move').action_assign(cr, uid, move_ids)
         return True
-
-    def get_ups_servicetype_name(self, code, mag_code=False):
-        if code:
-            if code == '01':
-                return 'Next Day Air'
-            elif code == '02':
-                return 'Second Day Air'
-            elif code == '03':
-                return 'Ground'
-            elif code == '07':
-                return 'Worldwide Express'
-            elif code == '08':
-                return 'Worldwide Expedited'
-            elif code == '11':
-                return 'Standard'
-            elif code == '12':
-                return 'Three-Day Select'
-            elif code == '13':
-                return 'Next Day Air Saver'
-            elif code == '14':
-                return 'Next Day Air Early AM'
-            elif code == '54':
-                return 'Worldwide Express Plus'
-            elif code == '59':
-                return 'Second Day Air AM'
-            elif code == '65':
-                return 'Saver'
-            else:
-                return False
-        elif mag_code:
-            if mag_code == 'ups_3DS':
-                return 'Three-Day Select'
-            elif mag_code == 'ups_GND':
-                return 'Ground'
-            elif mag_code == 'ups_2DA':
-                return 'Second Day Air'
-            elif mag_code == 'ups_1DP':
-                return 'Next Day Air Saver'
-            elif mag_code == 'ups_1DA':
-                return 'Next Day Air'
-            elif mag_code == 'ups_1DM':
-                return 'Next Day Air Early AM'
-        else:
-            return False
 
     #    product_id = fields.related('move_lines', 'product_id', type='many2one', relation="product.product" ,string='Product name')
     #    product_id = fields.Many2one(string='Product name', related='product_id.move_lines')
@@ -360,6 +364,8 @@ class stock_picking(models.Model):
     label_generated = fields.Boolean('Label Generated')
     is_faulty_deliv_order = fields.Boolean('Faulty Delivery Order')
     container_usps = fields.Selection(_get_container_usps, string='Container', size=100)
+    number_of_packages = fields.Integer(string='Number of Packages', copy=False)
+    company_id = fields.Many2one('res.company', string='Company', related='product_id.company_id', store=True, readonly=False)
 
     def generate_fedex_shipping(self, id, dropoff_type_fedex, service_type_fedex, packaging_type_fedex,
                                 package_detail_fedex, payment_type_fedex, physical_packaging_fedex, weight,
