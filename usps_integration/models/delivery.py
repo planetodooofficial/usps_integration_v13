@@ -20,6 +20,7 @@
 
 from odoo import models, fields, api, _
 
+
 class delivery_carrier(models.Model):
     _inherit = "delivery.carrier"
     
@@ -27,5 +28,4 @@ class delivery_carrier(models.Model):
     size_usps = fields.Char(string='Size', size=100)
     first_class_mail_type_usps = fields.Char(string='First Class Mail Type')
     is_usps = fields.Boolean(string='Is USPS', help="If the field is set to True, it will consider it as USPS service type.")
-    
-delivery_carrier()    
+    partner_id = fields.Many2one('res.partner', string='Recipient', required=True)

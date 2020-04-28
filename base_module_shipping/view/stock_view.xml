@@ -22,7 +22,7 @@
             <field name="model">shipping.response</field>
             <field name="arch" type="xml">
 <!--                <tree colors="blue:cust_default==True;red:sys_default==True" string = "Shipping Response" readonly = "1">-->
-                <tree string = "Shipping Response" create="false" edit="false">
+                <tree string = "Shipping Response">
                     <!--<button name="generate_tracking_no" string="Accept" type="object" icon="gtk-go-forward" />-->
                     <field name="name" />
                     <field name="rate" />

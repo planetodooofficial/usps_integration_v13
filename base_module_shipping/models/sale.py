@@ -51,7 +51,7 @@ class sale_order(models.Model):
     project_id = fields.Many2one('project.project', string='Project', readonly=True)
     use_shipping = fields.Boolean(string='Use Shipping', default=True)
     shipping_type = fields.Selection(_get_shipping_type, string='Shipping Type', default='All')
-    weight_package = fields.Float(string='Package Weight', digits_compute=dp.get_precision('Stock Weight'),
+    weight_package = fields.Float(string='Package Weight', digits=dp.get_precision('Stock Weight'),
                                   help="Package weight which comes from weighinig machine in pounds", default='1')
     length_package = fields.Float(string='Package Length', default='1')
     width_package = fields.Float(string='Package Width', default='1')

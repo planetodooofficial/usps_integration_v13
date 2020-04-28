@@ -102,9 +102,9 @@ class sale_order(models.Model):
     container_usps = fields.Selection(_get_container_usps,'Container', size=100)
     size_usps = fields.Selection(_get_size_usps, string='Size', default='REGULAR')
     include_postage_usps = fields.Boolean(string='Include Postage', default= True)
-    width_usps = fields.Float(string='Width', digits_compute= dp.get_precision('Stock Weight'))
-    length_usps = fields.Float(string='Length', digits_compute= dp.get_precision('Stock Weight'))
-    height_usps = fields.Float(string='Height', digits_compute= dp.get_precision('Stock Weight'))
-    girth_usps = fields.Float(string='Girth', digits_compute= dp.get_precision('Stock Weight'))
+    width_usps = fields.Float(string='Width', digits= dp.get_precision('Stock Weight'))
+    length_usps = fields.Float(string='Length', digits= dp.get_precision('Stock Weight'))
+    height_usps = fields.Float(string='Height', digits= dp.get_precision('Stock Weight'))
+    girth_usps = fields.Float(string='Girth', digits= dp.get_precision('Stock Weight'))
     
 sale_order()

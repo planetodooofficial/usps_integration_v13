@@ -23,7 +23,7 @@ import logging
 from base64 import b64decode
 
 import odoo.addons.decimal_precision as dp
-from . miscellaneous import Address
+from .miscellaneous import Address
 
 from odoo import models, fields, api
 from odoo.osv import osv
@@ -118,13 +118,6 @@ class shipping_response(models.Model):
     selected = fields.Boolean(string='Selected', default=False)
     picking_id = fields.Many2one('stock.picking', string='Picking')
 
-def _get_size_usps():
-    return [
-        ('REGULAR', 'Regular'),
-        ('LARGE', 'Large'),
-    ]
-
-
 def _get_container_usps():
     return [
         ('Variable', 'Variable'),
@@ -168,62 +161,6 @@ def _get_service_type_ups():
         ('59', 'Second Day Air AM'),
         ('65', 'Saver'),
         ('86', 'Express Saver'),
-    ]
-
-
-def _get_service_type_fedex():
-    return [
-        ('EUROPE_FIRST_INTERNATIONAL_PRIORITY', 'EUROPE_FIRST_INTERNATIONAL_PRIORITY'),
-        ('FEDEX_1_DAY_FREIGHT', 'FEDEX_1_DAY_FREIGHT'),
-        ('FEDEX_2_DAY', 'FEDEX_2_DAY'),
-        ('FEDEX_2_DAY_FREIGHT', 'FEDEX_2_DAY_FREIGHT'),
-        ('FEDEX_3_DAY_FREIGHT', 'FEDEX_3_DAY_FREIGHT'),
-        ('FEDEX_EXPRESS_SAVER', 'FEDEX_EXPRESS_SAVER'),
-        ('STANDARD_OVERNIGHT', 'STANDARD_OVERNIGHT'),
-        ('PRIORITY_OVERNIGHT', 'PRIORITY_OVERNIGHT'),
-        ('FEDEX_GROUND', 'FEDEX_GROUND'),
-    ]
-
-
-def _get_first_class_mail_type_usps():
-    return [
-        ('Letter', 'Letter'),
-        ('Flat', 'Flat'),
-        ('Parcel', 'Parcel'),
-        ('Postcard', 'Postcard'),
-    ]
-
-
-def _get_service_type_usps():
-    return [
-        ('First Class', 'First Class'),
-        ('First Class HFP Commercial', 'First Class HFP Commercial'),
-        ('FirstClassMailInternational', 'First Class Mail International'),
-        ('Priority', 'Priority'),
-        ('Priority Commercial', 'Priority Commercial'),
-        ('Priority HFP Commercial', 'Priority HFP Commercial'),
-        ('PriorityMailInternational', 'Priority Mail International'),
-        ('Express', 'Express'),
-        ('Express Commercial', 'Express Commercial'),
-        ('Express SH', 'Express SH'),
-        ('Express SH Commercial', 'Express SH Commercial'),
-        ('Express HFP', 'Express HFP'),
-        ('Express HFP Commercial', 'Express HFP Commercial'),
-        ('ExpressMailInternational', 'Express Mail International'),
-        ('ParcelPost', 'Parcel Post'),
-        ('ParcelSelect', 'Parcel Select'),
-        ('StandardMail', 'Standard Mail'),
-        ('CriticalMail', 'Critical Mail'),
-        ('Media', 'Media'),
-        ('Library', 'Library'),
-        ('All', 'All'),
-        ('Online', 'Online'),
-    ]
-
-
-def _get_shipping_type():
-    return [
-        ('All', 'All'),
     ]
 
 
@@ -296,23 +233,51 @@ class stock_picking(models.Model):
     #    product_id = fields.Many2one(string='Product name', related='product_id.move_lines')
     #    product_qty = fields.related('move_lines', 'product_qty', type='char', string='Qty')
     #    product_qty = fields.Char(string='Qty', related='move_lines.product_qty')
-    shipping_type = fields.Selection(_get_shipping_type, 'Shipping Type', default='All')
+    shipping_type = fields.Selection([('All', 'All')], 'Shipping Type', default='All')
     use_shipping = fields.Boolean(string='Use Shipping', default=True)
     is_residential = fields.Boolean(string='Residential')
-    weight_package = fields.Float(string='Package Weight', digits_compute=dp.get_precision('Stock Weight'),
+    weight_package = fields.Float(string='Package Weight', digits=dp.get_precision('Stock Weight'),
                                   help="Package weight which comes from weighinig machine in pounds")
     length_package = fields.Float(string='Package Length')
     width_package = fields.Float(string='Package Width')
     height_package = fields.Float(string='Package Height')
     units_package = fields.Char(string='Package Units', size=64, default='IN')
-    service_type_usps = fields.Selection(_get_service_type_usps, string='Service Type', size=100)
-    first_class_mail_type_usps = fields.Selection(_get_first_class_mail_type_usps, string='First Class Mail Type',
-                                                  size=50)
-    size_usps = fields.Selection(_get_size_usps, string='Size')
-    width_usps = fields.Float(string='Width', digits_compute=dp.get_precision('Stock Weight'))
-    length_usps = fields.Float(string='Length', digits_compute=dp.get_precision('Stock Weight'))
-    height_usps = fields.Float(string='Height', digits_compute=dp.get_precision('Stock Weight'))
-    girth_usps = fields.Float(string='Girth', digits_compute=dp.get_precision('Stock Weight'))
+    service_type_usps = fields.Selection([
+        ('First Class', 'First Class'),
+        ('First Class HFP Commercial', 'First Class HFP Commercial'),
+        ('FirstClassMailInternational', 'First Class Mail International'),
+        ('Priority', 'Priority'),
+        ('Priority Commercial', 'Priority Commercial'),
+        ('Priority HFP Commercial', 'Priority HFP Commercial'),
+        ('PriorityMailInternational', 'Priority Mail International'),
+        ('Express', 'Express'),
+        ('Express Commercial', 'Express Commercial'),
+        ('Express SH', 'Express SH'),
+        ('Express SH Commercial', 'Express SH Commercial'),
+        ('Express HFP', 'Express HFP'),
+        ('Express HFP Commercial', 'Express HFP Commercial'),
+        ('ExpressMailInternational', 'Express Mail International'),
+        ('ParcelPost', 'Parcel Post'),
+        ('ParcelSelect', 'Parcel Select'),
+        ('StandardMail', 'Standard Mail'),
+        ('CriticalMail', 'Critical Mail'),
+        ('Media', 'Media'),
+        ('Library', 'Library'),
+        ('All', 'All'),
+        ('Online', 'Online'),
+    ], string='Service Type', size=100)
+
+    first_class_mail_type_usps = fields.Selection([
+        ('Letter', 'Letter'),
+        ('Flat', 'Flat'),
+        ('Parcel', 'Parcel'),
+        ('Postcard', 'Postcard'),
+    ], string='First Class Mail Type',size=50)
+    size_usps = fields.Selection([('REGULAR', 'Regular'),('LARGE', 'Large')], string='Size')
+    width_usps = fields.Float(string='Width', digits=dp.get_precision('Stock Weight'))
+    length_usps = fields.Float(string='Length', digits=dp.get_precision('Stock Weight'))
+    height_usps = fields.Float(string='Height', digits=dp.get_precision('Stock Weight'))
+    girth_usps = fields.Float(string='Girth', digits=dp.get_precision('Stock Weight'))
     include_postage_usps = fields.Boolean(string='Include Postage')
     dropoff_type_fedex = fields.Selection([
         ('REGULAR_PICKUP', 'REGULAR PICKUP'),
@@ -321,7 +286,17 @@ class stock_picking(models.Model):
         ('BUSINESS_SERVICE_CENTER', 'BUSINESS SERVICE CENTER'),
         ('STATION', 'STATION'),
     ], string='Dropoff Type')
-    service_type_fedex = fields.Selection(_get_service_type_fedex, string='Service Type', size=100)
+    service_type_fedex = fields.Selection([
+        ('EUROPE_FIRST_INTERNATIONAL_PRIORITY', 'EUROPE_FIRST_INTERNATIONAL_PRIORITY'),
+        ('FEDEX_1_DAY_FREIGHT', 'FEDEX_1_DAY_FREIGHT'),
+        ('FEDEX_2_DAY', 'FEDEX_2_DAY'),
+        ('FEDEX_2_DAY_FREIGHT', 'FEDEX_2_DAY_FREIGHT'),
+        ('FEDEX_3_DAY_FREIGHT', 'FEDEX_3_DAY_FREIGHT'),
+        ('FEDEX_EXPRESS_SAVER', 'FEDEX_EXPRESS_SAVER'),
+        ('STANDARD_OVERNIGHT', 'STANDARD_OVERNIGHT'),
+        ('PRIORITY_OVERNIGHT', 'PRIORITY_OVERNIGHT'),
+        ('FEDEX_GROUND', 'FEDEX_GROUND'),
+    ], string='Service Type', size=100)
     packaging_type_fedex = fields.Selection([
         ('FEDEX_BOX', 'FEDEX BOX'),
         ('FEDEX_PAK', 'FEDEX PAK'),
@@ -363,9 +338,33 @@ class stock_picking(models.Model):
     label_printed_datetime = fields.Date('Label Printed on Date')
     label_generated = fields.Boolean('Label Generated')
     is_faulty_deliv_order = fields.Boolean('Faulty Delivery Order')
-    container_usps = fields.Selection(_get_container_usps, string='Container', size=100)
+    container_usps = fields.Selection([
+        ('Variable', 'Variable'),
+        ('Card', 'Card'),
+        ('Letter', 'Letter'),
+        ('Flat', 'Flat'),
+        ('Parcel', 'Parcel'),
+        ('Large Parcel', 'Large Parcel'),
+        ('Irregular Parcel', 'Irregular Parcel'),
+        ('Oversized Parcel', 'Oversized Parcel'),
+        ('Flat Rate Envelope', 'Flat Rate Envelope'),
+        ('Padded Flat Rate Envelope', 'Padded Flat Rate Envelope'),
+        ('Legal Flat Rate Envelope', 'Legal Flat Rate Envelope'),
+        ('SM Flat Rate Envelope', 'SM Flat Rate Envelope'),
+        ('Window Flat Rate Envelope', 'Window Flat Rate Envelope'),
+        ('Gift Card Flat Rate Envelope', 'Gift Card Flat Rate Envelope'),
+        ('Cardboard Flat Rate Envelope', 'Cardboard Flat Rate Envelope'),
+        ('Flat Rate Box', 'Flat Rate Box'),
+        ('SM Flat Rate Box', 'SM Flat Rate Box'),
+        ('MD Flat Rate Box', 'MD Flat Rate Box'),
+        ('LG Flat Rate Box', 'LG Flat Rate Box'),
+        ('RegionalRateBoxA', 'RegionalRateBoxA'),
+        ('RegionalRateBoxB', 'RegionalRateBoxB'),
+        ('Rectangular', 'Rectangular'),
+        ('Non-Rectangular', 'Non-Rectangular'),
+    ], string='Container', size=100)
     number_of_packages = fields.Integer(string='Number of Packages', copy=False)
-    company_id = fields.Many2one('res.company', string='Company', related='product_id.company_id', store=True, readonly=False)
+    company_id = fields.Many2one('res.company', string='Company', store=True, readonly=False)
 
     def generate_fedex_shipping(self, id, dropoff_type_fedex, service_type_fedex, packaging_type_fedex,
                                 package_detail_fedex, payment_type_fedex, physical_packaging_fedex, weight,
@@ -463,7 +462,7 @@ class stock_picking(models.Model):
             attach_result = attach_id.write(data_attach)
         return attach_id
 
-    #@api.multi
+    # @api.multi
     def generate_shipping(self):
         '''
         This function is used to Get the shipping Rates in Delivery Order
@@ -681,7 +680,7 @@ class stock_picking(models.Model):
                 sys_default = res[0]['shipping_type'] + '/' + service_type_fedex + '/' + 'YOUR_PACKAGING'
         return sys_default
 
-    #@api.multi
+    # @api.multi
     def get_min_shipping_rate(self, sale_id, product_shipping_ids, weight):
         context = dict(self._context or {})
         shipment_types = {
@@ -924,7 +923,7 @@ class stock_picking(models.Model):
             weight += line.product_id.product_tmpl_id.weight_net * product_qty
         return weight
 
-    #@api.multi
+    # @api.multi
     def _get_heaviest_product(self, id, lines):
         '''
         This function is used to Get heaviest product id to get the carrier type in delivery order based on product or product category conf

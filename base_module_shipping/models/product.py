@@ -25,8 +25,8 @@ class product_template(models.Model):
     _name = "product.template"
     _inherit = "product.template"
 
-    weight = fields.Float(string='Gross weight', digits_compute= dp.get_precision('Stock Weight'), help="The gross weight in Kg.")
-    weight_net = fields.Float(string='Net weight', digits_compute= dp.get_precision('Stock Weight'), help="The net weight in Kg.")
+    weight = fields.Float(string='Gross weight', digits= dp.get_precision('Stock Weight'), help="The gross weight in Kg.")
+    weight_net = fields.Float(string='Net weight', digits= dp.get_precision('Stock Weight'), help="The net weight in Kg.")
     
     
 product_template()
@@ -39,7 +39,7 @@ class product_category_shipping(models.Model):
         
     product_categ_id = fields.Many2one('product.category',string='Product Shipping Category')
     sequence = fields.Integer(string='Sequence', required=True, help="Gives the order in which the shipping rules will be checked. The evaluation gives highest priority to lowest sequence and stops as soon as a matching item is found.", default= lambda *a: 5)
-    weight = fields.Float(string='Weight', digits_compute= dp.get_precision('Stock Weight'), help="Package weight which comes from weighinig machine in pounds")
+    weight = fields.Float(string='Weight', digits= dp.get_precision('Stock Weight'), help="Package weight which comes from weighinig machine in pounds")
     shipping_type = fields.Selection([('Fedex','Fedex'),('UPS','UPS'),('USPS','USPS')],string='Shipping Type')
     postage_usps = fields.Boolean(string='Include Postage')
     
@@ -64,7 +64,7 @@ class product_product_shipping(models.Model):
         
     product_id =fields.Many2one('product.product',string='Product')
     sequence = fields.Integer(string='Sequence', required=True, help="Gives the order in which the shipping rules will be checked. The evaluation gives highest priority to lowest sequence and stops as soon as a matching item is found.", default= lambda *a: 5)
-    weight = fields.Float(string='Weight', digits_compute= dp.get_precision('Stock Weight'), help="Package weight which comes from weighinig machine in pounds")
+    weight = fields.Float(string='Weight', digits= dp.get_precision('Stock Weight'), help="Package weight which comes from weighinig machine in pounds")
     shipping_type = fields.Selection([('Fedex','Fedex'),('UPS','UPS'),('USPS','USPS')],string='Shipping Type')
     
         
