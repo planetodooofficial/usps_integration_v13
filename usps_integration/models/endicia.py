@@ -141,8 +141,8 @@ class Endicia(object):
              delivery_confirmation=False, signature_confirmation=False):
         q = queue.Queue()
         threaded_calculation = threading.Thread(target=self._rate_action, args=(
-        q, packages, packaging_type, shipper, recipient, insurance, insurance_amount, delivery_confirmation,
-        signature_confirmation))
+            q, packages, packaging_type, shipper, recipient, insurance, insurance_amount, delivery_confirmation,
+            signature_confirmation))
         threaded_calculation.start()
         response = q.get()
         return response
@@ -156,7 +156,7 @@ class Endicia(object):
         request.CertifiedIntermediary.PassPhrase = self.credentials['passphrase']
 
         request.MailClass = 'Domestic' if (
-                    to_country_code.upper() == 'US' or to_country_code.upper() == 'PR') else 'International'
+                to_country_code.upper() == 'US' or to_country_code.upper() == 'PR') else 'International'
         request.WeightOz = packages[0].weight_in_ozs
         request.MailpieceShape = packaging_type
         request.Machinable = True
@@ -258,6 +258,35 @@ class Error(object):
         return 'Endicia error %d: %s' % (self.status, self.message)
 
 
+def _parse_response_body(root, namespace):
+    return LabelResponse(root, namespace)
+
+
+def __add_address(address, type, root):
+    info = dict()
+    info['Company'] = address.company_name
+    info['Name'] = address.name
+    info['Address1'] = address.address1
+    info['City'] = address.city
+    info['State'] = address.state_code
+    info['PostalCode'] = address.zip
+    info['Country'] = _normalize_country(address.country_code.upper()) or address.country
+    if address.country_code.upper() != 'US' and address.country_code.upper() != 'USA':
+        info['CountryCode'] = address.country_code.upper()
+    if address.phone:
+        info['Phone'] = address.phone
+    if address.address2:
+        info['Address2'] = address.address2
+
+    for key, value in info.items():
+        # Endicia expects ReturnAddressX instead of FromAddressX
+        if type == 'From' and 'Address' in key:
+            element_key = 'Return%s' % key
+        else:
+            element_key = '%s%s' % (type, key)
+        etree.SubElement(root, element_key).text = value
+
+
 class LabelRequest(EndiciaRequest):
     def __init__(self, partner_id, account_id, passphrase, label_type, label_size, image_format, image_rotation,
                  package, shipper, recipient, reference, reference2, include_postage=True, debug=False,
@@ -300,9 +329,6 @@ class LabelRequest(EndiciaRequest):
         self.rubber_stamp = reference
         self.rubber_stamp2 = reference2
 
-    def _parse_response_body(self, root, namespace):
-        return LabelResponse(root, namespace)
-
     def _get_xml(self):
         root = etree.Element('LabelRequest')
         root.set('LabelType', self.label_type if not self.destination_confirm else 'DestinationConfirm')
@@ -340,7 +366,8 @@ class LabelRequest(EndiciaRequest):
         if self.label_type in ('Domestic', 'International'):
             formtext = 'Form2976A'
             if self.package.mail_class in (
-            'FirstClassMailInternational', 'PriorityMailInternational') and self.package.shape in ('FlatRateEnvelope'):
+                    'FirstClassMailInternational', 'PriorityMailInternational') and self.package.shape in (
+                    'FlatRateEnvelope'):
                 formtext = 'Form2976'
             etree.SubElement(root, u'IntegratedFormType').text = formtext
 
@@ -363,30 +390,6 @@ class LabelRequest(EndiciaRequest):
             etree.SubElement(root, u'CustomsSigner').text = self.customs_signer
         return root
 
-    def __add_address(self, address, type, root):
-        info = dict()
-        info['Company'] = address.company_name
-        info['Name'] = address.name
-        info['Address1'] = address.address1
-        info['City'] = address.city
-        info['State'] = address.state_code
-        info['PostalCode'] = address.zip
-        info['Country'] = _normalize_country(address.country_code.upper()) or address.country
-        if address.country_code.upper() != 'US' and address.country_code.upper() != 'USA':
-            info['CountryCode'] = address.country_code.upper()
-        if address.phone:
-            info['Phone'] = address.phone
-        if address.address2:
-            info['Address2'] = address.address2
-
-        for key, value in info.items():
-            # Endicia expects ReturnAddressX instead of FromAddressX
-            if type == 'From' and 'Address' in key:
-                element_key = 'Return%s' % key
-            else:
-                element_key = '%s%s' % (type, key)
-            etree.SubElement(root, element_key).text = value
-
 
 class LabelResponse(object):
     def __init__(self, root, namespace):
@@ -406,6 +409,10 @@ class LabelResponse(object):
         return response
 
 
+def _parse_response_body(root, namespace):
+    return RecreditResponse(root, namespace)
+
+
 class RecreditRequest(EndiciaRequest):
     def __init__(self, partner_id, account_id, passphrase, amount, debug=False):
         url = u'BuyPostageXML'
@@ -417,9 +424,6 @@ class RecreditRequest(EndiciaRequest):
         self.passphrase = passphrase
 
         self.amount = str(amount)
-
-    def _parse_response_body(self, root, namespace):
-        return RecreditResponse(root, namespace)
 
     def _get_xml(self):
         root = etree.Element('RecreditRequest')
@@ -443,12 +447,16 @@ class RecreditResponse(object):
 
     def __repr__(self):
         return 'Status: %s, Balance: $%s, Total Printed: $%s' % (
-        self.account_status, self.postage_balance, self.postage_printed)
+            self.account_status, self.postage_balance, self.postage_printed)
 
     def _get_value(self):
         response = {'status': self.account_status, 'postage_balance': self.postage_balance,
                     'postage_printed': self.postage_printed}
         return response
+
+
+def _parse_response_body(root, namespace):
+    return ChangePasswordResponse(root, namespace)
 
 
 class ChangePasswordRequest(EndiciaRequest):
@@ -462,9 +470,6 @@ class ChangePasswordRequest(EndiciaRequest):
         self.passphrase = passphrase
 
         self.new_passphrase = new_passphrase
-
-    def _parse_response_body(self, root, namespace):
-        return ChangePasswordResponse(root, namespace)
 
     def _get_xml(self):
         root = etree.Element('ChangePassPhraseRequest')
@@ -493,6 +498,10 @@ class ChangePasswordResponse(object):
         return response
 
 
+def _parse_response_body(root, namespace):
+    return RateResponse(root, namespace)
+
+
 class RateRequest(EndiciaRequest):
     def __init__(self, partner_id, account_id, passphrase, package, shipper, recipient, debug=False):
         url = u'CalculatePostageRateXML'
@@ -506,9 +515,6 @@ class RateRequest(EndiciaRequest):
         self.package = package
         self.shipper = shipper
         self.recipient = recipient
-
-    def _parse_response_body(self, root, namespace):
-        return RateResponse(root, namespace)
 
     def _get_xml(self):
         root = etree.Element('PostageRateRequest')
@@ -540,6 +546,10 @@ class RateResponse(object):
         return 'Estimated Cost: $%s' % self.postage_price
 
 
+def _parse_response_body(root, namespace):
+    return AccountStatusResponse(root, namespace)
+
+
 class AccountStatusRequest(EndiciaRequest):
     def __init__(self, partner_id, account_id, passphrase, debug=False):
         url = u'GetAccountStatusXML'
@@ -549,9 +559,6 @@ class AccountStatusRequest(EndiciaRequest):
         self.partner_id = partner_id
         self.account_id = account_id
         self.passphrase = passphrase
-
-    def _parse_response_body(self, root, namespace):
-        return AccountStatusResponse(root, namespace)
 
     def _get_xml(self):
         root = etree.Element('AccountStatusRequest')
@@ -576,7 +583,7 @@ class AccountStatusResponse(object):
 
     def __repr__(self):
         return 'Status: %s, Balance: $%s, Total Printed: $%s' % (
-        self.account_status, self.postage_balance, self.postage_printed)
+            self.account_status, self.postage_balance, self.postage_printed)
 
     def _get_value(self):
         response = {'serial_number': self.serial_number,
@@ -584,8 +591,11 @@ class AccountStatusResponse(object):
                     'postage_printed': self.postage_printed,
                     'account_status': self.account_status,
                     'device_id': self.device_id}
-
         return response
+
+
+def _parse_response_body(root):
+    return RefundResponse(root)
 
 
 class RefundRequest(EndiciaRequest):
@@ -630,11 +640,8 @@ class RefundRequest(EndiciaRequest):
         if error_msg:
             raise Exception(error_msg)
         else:
-            response = self._parse_response_body(root)
+            response = _parse_response_body(root)
         return response
-
-    def _parse_response_body(self, root):
-        return RefundResponse(root)
 
     def _get_xml(self):
         root = etree.Element('RefundRequest')

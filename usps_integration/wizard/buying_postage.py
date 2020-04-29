@@ -44,6 +44,3 @@ class buying_postage(models.TransientModel):
         return {'type': 'ir.actions.act_window_close'}
 
     name = fields.Float(string='Total Rate')
-
-
-buying_postage()

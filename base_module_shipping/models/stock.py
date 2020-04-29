@@ -118,6 +118,7 @@ class shipping_response(models.Model):
     selected = fields.Boolean(string='Selected', default=False)
     picking_id = fields.Many2one('stock.picking', string='Picking')
 
+
 def _get_container_usps():
     return [
         ('Variable', 'Variable'),
@@ -272,8 +273,8 @@ class stock_picking(models.Model):
         ('Flat', 'Flat'),
         ('Parcel', 'Parcel'),
         ('Postcard', 'Postcard'),
-    ], string='First Class Mail Type',size=50)
-    size_usps = fields.Selection([('REGULAR', 'Regular'),('LARGE', 'Large')], string='Size')
+    ], string='First Class Mail Type', size=50)
+    size_usps = fields.Selection([('REGULAR', 'Regular'), ('LARGE', 'Large')], string='Size')
     width_usps = fields.Float(string='Width', digits=dp.get_precision('Stock Weight'))
     length_usps = fields.Float(string='Length', digits=dp.get_precision('Stock Weight'))
     height_usps = fields.Float(string='Height', digits=dp.get_precision('Stock Weight'))
@@ -925,11 +926,11 @@ class stock_picking(models.Model):
 
     # @api.multi
     def _get_heaviest_product(self, id, lines):
-        '''
+        """
         This function is used to Get heaviest product id to get the carrier type in delivery order based on product or product category conf
-        parameters: 
+        parameters:
             lines: (dictionary) Product Line
-        '''
+        """
         context = dict(self._context or {})
         weight = 0.0
         product_id = False

@@ -1,10 +1,9 @@
-from odoo.osv import osv
-from odoo import models, fields, api, _
-from odoo.tools.translate import _
-from custom.usps_integration_v13.usps_integration.models import endicia
-import datetime
 import logging
-import time
+
+from custom.usps_integration_v13.usps_integration.models import endicia
+from odoo import models
+from odoo.osv import osv
+from odoo.tools.translate import _
 
 # import commands
 _logger = logging.getLogger(__name__)
@@ -13,13 +12,12 @@ _logger = logging.getLogger(__name__)
 class refund_request(models.TransientModel):
     _inherit = "refund.request"
 
-    # @api.multi
     def action_refund_request_usps(self):
-        '''
-        This function is used to Cancel shipping label based on the carrier type choosen in the deilvery order
-        parameters: 
+        """
+        This function is used to Cancel shipping label based on the carrier type chosen in the delivery order
+        parameters:
             No Parameters
-        '''
+        """
         if self._context.get('active_ids', False):
             picking_obj = self.env['stock.picking']
             ship_endicia = self.env['shipping.usps'].get_endicia_info()
@@ -37,7 +35,7 @@ class refund_request(models.TransientModel):
                 raise osv.except_osv(_('Error'), _('Maximum 100 requests can be submitted'))
 
             if picking.carrier_id and (
-            picking.carrier_id.name.startswith('USPS')) or picking.shipping_type.lower() == 'usps':
+                    picking.carrier_id.name.startswith('USPS')) or picking.shipping_type.lower() == 'usps':
                 try:
                     request = endicia.RefundRequest(requester_id, account_id, passphrase, tracking_numbers, debug=debug)
                     response = request.send()
@@ -52,6 +50,3 @@ class refund_request(models.TransientModel):
                                'postage_bought': False})
                 picking.write({'label_printed': False, 'label_printed_datetime': False, 'label_generated': False})
             return {'type': 'ir.actions.act_window_close'}
-
-
-refund_request()

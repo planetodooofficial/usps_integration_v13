@@ -21,6 +21,8 @@ from . import shipping_conf
 from . import delivery
 from . import product
 from . import sale
+from . import shipping_endicia
+from . import endicia
 from . import shipping
 from . import stock
 

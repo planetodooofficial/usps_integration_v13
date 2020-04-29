@@ -18,16 +18,13 @@
 #
 ##############################################################################
 
-import re
+import logging
 import math
 import urllib
-from urllib.request import urlopen
+import xml.etree.ElementTree as etree
 from urllib.error import URLError
 from urllib.request import Request
-from urllib.parse import quote
-
-import xml.etree.ElementTree as etree
-import logging
+from urllib.request import urlopen
 
 logger = logging.getLogger('shippingservice')
 
@@ -233,10 +230,10 @@ class UPSRateRequest(UPSShipping):
 
             </Shipment>
             </RatingServiceSelectionRequest>""" % (
-        self.ups_info.access_license_no, self.ups_info.user_id, self.ups_info.password, self.pickup_type_ups,
-        self.shipper.zip, self.shipper.country_code, self.ups_info.shipper_no, self.receipient.state_code,
-        self.receipient.zip, self.receipient.country_code, residential, self.shipper.zip, self.shipper.country_code,
-        self.shipper.state_code, self.service_type_ups, self.packaging_type_ups, self.measurement, self.weight,))
+            self.ups_info.access_license_no, self.ups_info.user_id, self.ups_info.password, self.pickup_type_ups,
+            self.shipper.zip, self.shipper.country_code, self.ups_info.shipper_no, self.receipient.state_code,
+            self.receipient.zip, self.receipient.country_code, residential, self.shipper.zip, self.shipper.country_code,
+            self.shipper.state_code, self.service_type_ups, self.packaging_type_ups, self.measurement, self.weight,))
         data.append(
             'https://wwwcie.ups.com/ups.app/xml/Rate' if self.ups_info.test else 'https://onlinetools.ups.com/ups.app/xml/Rate')
         return data
@@ -354,13 +351,14 @@ class UPSShipmentConfirmRequest(UPSShipping):
                 </LabelPrintType>
             </LabelSpecification>
         </ShipmentConfirmRequest>""" % (
-        self.ups_info.access_license_no, self.ups_info.user_id, self.ups_info.password, self.shipper.company_name,
-        self.shipper.name, self.shipper.phone, self.ups_info.shipper_no, self.shipper.address1, self.shipper.address2,
-        self.shipper.city, self.shipper.state_code, self.shipper.country_code, self.shipper.zip,
-        self.receipient.company_name, self.receipient.name, self.receipient.phone, self.receipient.address1,
-        self.receipient.address2, self.receipient.city, self.receipient.state_code, self.receipient.country_code,
-        self.receipient.zip, self.payment_method, self.service_type_ups, ups_service_type[self.service_type_ups],
-        self.packaging_type_ups, self.weight, self.reference))
+            self.ups_info.access_license_no, self.ups_info.user_id, self.ups_info.password, self.shipper.company_name,
+            self.shipper.name, self.shipper.phone, self.ups_info.shipper_no, self.shipper.address1,
+            self.shipper.address2,
+            self.shipper.city, self.shipper.state_code, self.shipper.country_code, self.shipper.zip,
+            self.receipient.company_name, self.receipient.name, self.receipient.phone, self.receipient.address1,
+            self.receipient.address2, self.receipient.city, self.receipient.state_code, self.receipient.country_code,
+            self.receipient.zip, self.payment_method, self.service_type_ups, ups_service_type[self.service_type_ups],
+            self.packaging_type_ups, self.weight, self.reference))
         data.append(
             'https://wwwcie.ups.com/ups.app/xml/ShipConfirm' if self.ups_info.test else 'https://onlinetools.ups.com/ups.app/xml/ShipConfirm')
         return data
@@ -378,14 +376,17 @@ class UPSShipmentConfirmResponse(object):
         return (self.shipment_digest)
 
 
+def _parse_response_body(root):
+    return UPSShipmentAcceptResponse(root)
+
+
 class UPSShipmentAcceptRequest(UPSShipping):
     def __init__(self, ups_info, shipment_digest):
         self.ups_info = ups_info
         self.shipment_digest = shipment_digest
 
     def _get_data(self):
-        data = []
-        data.append("""
+        data = ["""
         <?xml version="1.0" ?>
         <AccessRequest xml:lang='en-US'>
             <AccessLicenseNumber>%s</AccessLicenseNumber>
@@ -399,13 +400,9 @@ class UPSShipmentAcceptRequest(UPSShipping):
             </Request>
             <ShipmentDigest>%s</ShipmentDigest>
         </ShipmentAcceptRequest>""" % (
-        self.ups_info.access_license_no, self.ups_info.user_id, self.ups_info.password, self.shipment_digest))
-        data.append(
-            'https://wwwcie.ups.com/ups.app/xml/ShipAccept' if self.ups_info.test else 'https://onlinetools.ups.com/ups.app/xml/ShipAccept')
+            self.ups_info.access_license_no, self.ups_info.user_id, self.ups_info.password, self.shipment_digest),
+                'https://wwwcie.ups.com/ups.app/xml/ShipAccept' if self.ups_info.test else 'https://onlinetools.ups.com/ups.app/xml/ShipAccept']
         return data
-
-    def _parse_response_body(self, root):
-        return UPSShipmentAcceptResponse(root)
 
 
 class UPSShipmentAcceptResponse(object):
@@ -418,7 +415,7 @@ class UPSShipmentAcceptResponse(object):
         self.rate = root.findtext('ShipmentResults/NegotiatedRates/NetSummaryCharges/GrandTotal/MonetaryValue')
 
     def __repr__(self):
-        return (self.tracking_number, self.image_format, self.graphic_image, self.rate)
+        return self.tracking_number, self.image_format, self.graphic_image, self.rate
 
 
 class USPSShipping(Shipping):
@@ -429,8 +426,7 @@ class USPSShipping(Shipping):
         datas = self._get_data()
         data = datas[0]
         api_url = datas[1]
-        values = {}
-        values['XML'] = data
+        values = {'XML': data}
         api_url = api_url + urllib.urlencode(values)
         logger.info('=api_url==%s', api_url)
         try:
@@ -454,6 +450,9 @@ class USPSShipping(Shipping):
         else:
             response = self._parse_response_body(root)
         return response
+
+    def _parse_response_body(self, root):
+        pass
 
 
 class USPSRateRequest(USPSShipping):
@@ -494,7 +493,7 @@ class USPSRateRequest(USPSShipping):
             size += '<Length>' + self.length_usps + '</Length>'
             size += '<Height>' + self.height_usps + '</Height>'
 
-            if stockpicking_lnk.container_usps == 'Non-Rectangular' or stockpicking_lnk.container_usps == 'Variable' or stockpicking_lnk.container_usps == '':
+            if self.container_usps == 'Non-Rectangular' or self.container_usps == 'Variable' or self.container_usps == '':
                 size += '<Girth>' + self.girth_usps + '</Girth>'
 
         data.append(
@@ -521,13 +520,31 @@ class USPSRateResponse(object):
             mail_service = postage.findtext('MailService').replace("&lt;sup&gt;&amp;reg;&lt;/sup&gt;", "")
             sr_no = 1 if cust_default and cust_default.split('/')[0] == self.type and cust_default.split('/')[
                 1] == mail_service else 9
-            sr_no = 2 if sr_no == 9 and sys_default and sys_default.split('/')[0] == self.type and \
-                         sys_default.split('/')[1] == mail_service else sr_no
+            sr_no = 2 if sr_no == 9 and sys_default and sys_default.split('/')[0] == self.type and sys_default.split('/')[1] == mail_service else sr_no
             self.postage.append({'Rate': postage.findtext('Rate'), 'Service': mail_service, 'sr_no': sr_no})
         self.weight = weight
 
     def __repr__(self):
-        return (self.service_type, self.rate, self.weight, self.sr_no)
+        return self.service_type, self.rate, self.weight, self.sr_no
+
+
+def _get_usps_servicename(service):
+    if 'First-Class' in service:
+        return 'First Class'
+    elif 'Express Mail' in service:
+        return 'Express Mail'
+    elif 'Priority Mail' in service:
+        return 'Priority Mail'
+    elif 'Library Mail' in service:
+        return 'Library Mail'
+    elif 'Parcel Post' in service:
+        return 'Parcel Post'
+    elif 'Media Mail' in service:
+        return 'Media Mail'
+
+
+def _parse_response_body(root):
+    return USPSDeliveryConfirmationResponse(root)
 
 
 class USPSDeliveryConfirmationRequest(USPSShipping):
@@ -536,32 +553,13 @@ class USPSDeliveryConfirmationRequest(USPSShipping):
         self.service_type_usps = service_type_usps
         super(USPSDeliveryConfirmationRequest, self).__init__(weight, shipper, receipient)
 
-    def _get_usps_servicename(self, service):
-        if 'First-Class' in service:
-            return 'First Class'
-        elif 'Express Mail' in service:
-            return 'Express Mail'
-        elif 'Priority Mail' in service:
-            return 'Priority Mail'
-        elif 'Library Mail' in service:
-            return 'Library Mail'
-        elif 'Parcel Post' in service:
-            return 'Parcel Post'
-        elif 'Media Mail' in service:
-            return 'Media Mail'
-
     def _get_data(self):
-        data = []
-        data.append(
+        data = [
             '<DeliveryConfirmationV3.0Request USERID="' + self.usps_info.user_id + '"><Option>1</Option><ImageParameters></ImageParameters><FromName>' + self.shipper.name + '</FromName><FromFirm>' + self.shipper.company_name + '</FromFirm><FromAddress1>' + self.shipper.address2 + '</FromAddress1><FromAddress2>' + self.shipper.address1 + '</FromAddress2><FromCity>' + self.shipper.city + '</FromCity><FromState>' + self.shipper.state_code + '</FromState><FromZip5>' + self.shipper.zip + '</FromZip5><FromZip4></FromZip4><ToName>' + self.receipient.name + '</ToName><ToFirm>' + self.receipient.company_name + '</ToFirm><ToAddress1>' + self.receipient.address2 + '</ToAddress1><ToAddress2>' + self.receipient.address1 + '</ToAddress2><ToCity>' + self.receipient.city + '</ToCity><ToState>' + self.receipient.state_code + '</ToState><ToZip5>' + self.receipient.zip + '</ToZip5><ToZip4></ToZip4><WeightInOunces>' + str(
-                self.weight * 16) + '</WeightInOunces><ServiceType>' + self._get_usps_servicename(
-                self.service_type_usps) + '</ServiceType><SeparateReceiptPage>TRUE</SeparateReceiptPage><POZipCode></POZipCode><ImageType>TIF</ImageType><LabelDate></LabelDate><CustomerRefNo></CustomerRefNo><AddressServiceRequested></AddressServiceRequested><SenderName></SenderName><SenderEMail></SenderEMail><RecipientName></RecipientName><RecipientEMail></RecipientEMail></DeliveryConfirmationV3.0Request>')
-        data.append(
-            "https://testing.shippingapis.com/ShippingAPITest.dll?API=DeliveryConfirmationV3&" if self.usps_info.test_usps else "https://secure.shippingapis.com/ShippingAPI.dll?API=DeliveryConfirmationV3&")
+                self.weight * 16) + '</WeightInOunces><ServiceType>' + _get_usps_servicename(
+                self.service_type_usps) + '</ServiceType><SeparateReceiptPage>TRUE</SeparateReceiptPage><POZipCode></POZipCode><ImageType>TIF</ImageType><LabelDate></LabelDate><CustomerRefNo></CustomerRefNo><AddressServiceRequested></AddressServiceRequested><SenderName></SenderName><SenderEMail></SenderEMail><RecipientName></RecipientName><RecipientEMail></RecipientEMail></DeliveryConfirmationV3.0Request>',
+            "https://testing.shippingapis.com/ShippingAPITest.dll?API=DeliveryConfirmationV3&" if self.usps_info.test_usps else "https://secure.shippingapis.com/ShippingAPI.dll?API=DeliveryConfirmationV3&"]
         return data
-
-    def _parse_response_body(self, root):
-        return USPSDeliveryConfirmationResponse(root)
 
 
 class USPSDeliveryConfirmationResponse(object):
@@ -572,4 +570,4 @@ class USPSDeliveryConfirmationResponse(object):
         self.graphic_image = root.findtext('DeliveryConfirmationLabel')
 
     def __repr__(self):
-        return (self.tracking_number, self.image_format, self.graphic_image)
+        return self.tracking_number, self.image_format, self.graphic_image

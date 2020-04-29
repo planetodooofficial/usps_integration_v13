@@ -11,7 +11,6 @@ _logger = logging.getLogger(__name__)
 class change_passphrase(models.TransientModel):
     _name = 'change.passphrase'
 
-    # @api.multi
     def action_change_passphrase(self):
         new_passphrase = self.name
         if len(new_passphrase) < 5:
@@ -47,6 +46,3 @@ class change_passphrase(models.TransientModel):
         return {'type': 'ir.actions.act_window_close'}
 
     name = fields.Char(string='New Passphrase', size=100, required=True)
-
-
-change_passphrase()

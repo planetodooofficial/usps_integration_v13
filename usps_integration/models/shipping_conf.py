@@ -24,10 +24,7 @@ from odoo import models, fields, api, _
 class shipping_usps(models.Model):
     _name = 'shipping.usps'
 
-    name_usps = fields.Char(string='Name', size=64)
-    user_id = fields.Char(string='UserID', size=64, required=True, translate=True)
+    name_usps = fields.Char(string='Name')
+    user_id = fields.Char(string='UserID', required=True, translate=True)
     test_usps = fields.Boolean(string='Is test?')
     active_usps = fields.Boolean(string='Active', default=True)
-    
-    
-shipping_usps()

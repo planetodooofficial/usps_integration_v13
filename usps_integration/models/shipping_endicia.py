@@ -1,28 +1,31 @@
 import xml.etree.ElementTree as etree
 import re
 
+
 def indent(elem, level=0):
     """Indents an etree element so printing that element is actually human-readable"""
-    i = "\n" + level*"  "
+    i = "\n" + level * "  "
     if len(elem):
         if not elem.text or not elem.text.strip():
             elem.text = i + "  "
         if not elem.tail or not elem.tail.strip():
             elem.tail = i
         for elem in elem:
-            indent(elem, level+1)
+            indent(elem, level + 1)
         if not elem.tail or not elem.tail.strip():
             elem.tail = i
     else:
         if level and (not elem.tail or not elem.tail.strip()):
             elem.tail = i
 
+
 def debug_print_tree(elem):
     indent(elem)
     etree.dump(elem)
 
+
 class Package(object):
-    ### Used for input from shipping info form - refer stock.py for dict keys
+    # Used for input from shipping info form - refer stock.py for dict keys
     domestic_shipment_types = {
         'Priority Commercial': 'Priority',
         'Priority HFP Commercial': 'Priority',
@@ -47,7 +50,7 @@ class Package(object):
     }
 
     shapes = {
-        'Parcel':'Parcel',
+        'Parcel': 'Parcel',
         'Card': 'Card',
         'Letter': 'Letter',
         'Flat': 'Flat',
@@ -68,16 +71,19 @@ class Package(object):
         'RegionalRateBoxB': 'RegionalRateBoxB',
     }
 
-    def __init__(self, mail_class, weight_in_ozs, length, width, height, value=0, require_signature=False, reference=u''):
-        self.mail_class = self.domestic_shipment_types.get(mail_class) and self.domestic_shipment_types[mail_class] or self.international_shipment_types.get(mail_class) and self.international_shipment_types[mail_class] or mail_class
-        self.weight = weight_in_ozs / 16 if float(weight_in_ozs) >= 1.0 else (1.0/16.0)
+    def __init__(self, mail_class, weight_in_ozs, length, width, height, value=0, require_signature=False,
+                 reference=u''):
+        self.mail_class = self.domestic_shipment_types.get(mail_class) and self.domestic_shipment_types[
+            mail_class] or self.international_shipment_types.get(mail_class) and self.international_shipment_types[
+                              mail_class] or mail_class
+        self.weight = weight_in_ozs / 16 if float(weight_in_ozs) >= 1.0 else (1.0 / 16.0)
         self.length = length
         self.width = width
         self.height = height
         self.value = value
         self.require_signature = require_signature
         self.reference = reference
-    
+
     @property
     def weight_in_ozs(self):
         return self.weight * 16
@@ -86,8 +92,10 @@ class Package(object):
     def weight_in_lbs(self):
         return self.weight
 
+
 class Address(object):
-    def __init__(self, name, address, city, state, zip, country, address2='', phone='', email='', is_residence=True, company_name=''):
+    def __init__(self, name, address, city, state, zip, country, address2='', phone='', email='', is_residence=True,
+                 company_name=''):
         self.company_name = company_name or ''
         self.name = name or ''
         self.address1 = address or ''
@@ -99,15 +107,16 @@ class Address(object):
         self.phone = re.sub('[^0-9]*', '', str(phone)) if phone else ''
         self.email = email or ''
         self.is_residence = is_residence or False
-    
+
     def __eq__(self, other):
         return vars(self) == vars(other)
-    
+
     def __repr__(self):
         street = self.address1
         if self.address2:
             street += '\n' + self.address2
         return '%s\n%s\n%s, %s %s %s' % (self.name, street, self.city, self.state, self.zip, self.country)
+
 
 def get_country_code(country):
     lookup = {

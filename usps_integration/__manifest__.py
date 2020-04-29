@@ -26,14 +26,14 @@
     'description': """
      Odoo Integration With USPS
     """,
-    "website" : "www.teckzilla.net",
+    "website": "www.planet-odoo.com",
     'author': 'Planet Odoo',
-    'depends': ['sale','stock','delivery','product','sale_stock', 'base_module_shipping'],
+    'depends': ['sale', 'stock', 'delivery', 'product', 'sale_stock', 'base_module_shipping'],
     'css': [
         'static/src/css/rotate_label.css',
-        ],
-    "demo" : [],
-	"price": "250",
+    ],
+    "demo": [],
+    "price": "250",
     "currency": "USD",
     "data": [
         "security/ir.model.access.csv",
