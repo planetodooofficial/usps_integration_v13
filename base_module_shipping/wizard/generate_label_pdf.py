@@ -79,6 +79,3 @@ class generate_label_pdf(models.TransientModel):
             }
         if not attachment_ids:
             raise osv.except_osv(_('Error'), _('No Attachment Found!'), )
-
-
-generate_label_pdf()

@@ -26,7 +26,7 @@ from odoo import models, fields
 class sale_order(models.Model):
     _inherit = "sale.order"
 
-    shipping_type = fields.Selection([('USPS', 'USPS')], 'Shipping Type', default='All')
+    shipping_type = fields.Selection([('Fedex', 'Fedex'), ('UPS', 'UPS'), ('USPS', 'USPS')], 'Shipping Type', default='All')
     service_type_usps = fields.Selection([
         ('First Class', 'First Class'),
         ('First Class HFP Commercial', 'First Class HFP Commercial'),

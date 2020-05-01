@@ -25,6 +25,7 @@
                 view_mode="form"
                 id="view_generate_shipping_quotes_action"
                 groups="base_module_shipping.group_shipping_manager"
+                    target="new"
                 />
 
 <!--        <record id="action_view_generate_shipping_quotes" model="ir.actions.act_window">

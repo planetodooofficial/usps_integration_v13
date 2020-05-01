@@ -8,7 +8,6 @@ _logger = logging.getLogger(__name__)
 class refund_request(models.TransientModel):
     _name = "refund.request"
 
-    # @api.multi
     def action_refund_request(self):
         """
         This function is used to Cancel shipping label based on the carrier type chosen in the delivery order
@@ -24,6 +23,3 @@ class refund_request(models.TransientModel):
             if picking.shipping_type.lower() == 'ups':
                 result = self.with_context().action_refund_request_ups()
         return {'type': 'ir.actions.act_window_close'}
-
-
-refund_request()

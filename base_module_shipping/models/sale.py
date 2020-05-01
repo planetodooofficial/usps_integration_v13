@@ -44,7 +44,7 @@ class sale_order(models.Model):
             return False
 
     use_shipping = fields.Boolean(string='Use Shipping', default=True)
-    shipping_type = fields.Selection([('All', 'All')], string='Shipping Type', default='All')
+    shipping_type = fields.Selection([('All', 'All'), ('Fedex', 'Fedex'), ('USPS', 'USPS')], string='Shipping Type', default='All')
     weight_package = fields.Float(string='Package Weight', digits=dp.get_precision('Stock Weight'),
                                   help="Package weight which comes from weighing machine in pounds", default='1')
     length_package = fields.Float(string='Package Length', default='1')

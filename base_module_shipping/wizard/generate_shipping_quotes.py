@@ -99,6 +99,3 @@ class generate_shipping_quotes(models.TransientModel):
                         picking_data.write({'label_generated': True, 'is_faulty_deliv_order': False})
                         self._cr.commit()
         return {'type': 'ir.actions.act_window_close'}
-
-
-generate_shipping_quotes()

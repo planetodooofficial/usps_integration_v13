@@ -60,12 +60,8 @@ class stock_picking(models.Model):
             ship_usps_id = ship_usps_id[0]
         return ship_usps_id
 
-    def _get_shipping_type(self):
-        res = super(stock_picking, self)._get_shipping_type()
-        res.append(('USPS', 'USPS'))
-        return res
-
-    shipping_type = fields.Selection(_get_shipping_type, 'Shipping Type')
+    shipping_type = fields.Selection([('Fedex', 'Fedex'), ('UPS', 'UPS'), ('USPS', 'USPS'), ('All', 'All')],
+                                     string='Shipping Type')
 
     def create_shipping_quotes(self, response, weight, cust_default, sys_default):
         shipping_res_obj = self.env['shipping.response']
@@ -73,7 +69,8 @@ class stock_picking(models.Model):
         for resp in response['info']:
             sr_no = 1 if cust_default and cust_default.split('/')[0] == 'USPS' and \
                          cust_default.split('/')[1].split(' ')[0] in resp['service'] else 9
-            sr_no = 2 if sr_no == 9 and sys_default and sys_default.split('/')[0] == 'USPS' and sys_default.split('/')[1].split(' ')[0] in resp['service'] else sr_no
+            sr_no = 2 if sr_no == 9 and sys_default and sys_default.split('/')[0] == 'USPS' and \
+                         sys_default.split('/')[1].split(' ')[0] in resp['service'] else sr_no
             vals = {
                 'name': resp['service'],
                 'type': 'USPS',
@@ -118,11 +115,13 @@ class stock_picking(models.Model):
     # @api.multi
     def generate_shipping(self):
         #        sys_default = 'USPS/First Class/Letter/Reqular'
-        if self._context is None:
-            self._context = {}
-        self._context['usps_active'] = False
-        self._context['ups_active'] = False
+        context = self._context.copy()
+        if context is None:
+            context = {}
+        context['usps_active'] = False
+        context['ups_active'] = False
         super(stock_picking, self).generate_shipping()
+        ship_usps = self.env['shipping.usps'].search([('active', '=', True)])
 
         for id in self:
             #            try:
@@ -135,7 +134,8 @@ class stock_picking(models.Model):
                 if not weight:
                     raise Exception('Package Weight Invalid!')
 
-                cust_address = lines.sale_id.shop_id.cust_address
+                # cust_address = lines.sale_id.shop_id.cust_address
+                cust_address = ship_usps.config_shipping_address_id
                 if not cust_address:
                     raise Exception('Shop Address not defined!')
 

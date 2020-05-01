@@ -25,8 +25,7 @@ class delivery_carrier(models.Model):
     _inherit = "delivery.carrier"
 
     is_usps = fields.Boolean(string='Is USPS', help="If the field is set to True, it will consider it as USPS service type.")
-    is_fedex = fields.Boolean(string='Is Fedex',
-                             help="If the field is set to True, it will consider it as Fedex service type.")
+    # is_fedex = fields.Boolean(string='Is Fedex', help="If the field is set to True, it will consider it as Fedex service type.")
     container_usps = fields.Char(string='Container')
     size_usps = fields.Char(string='Size')
     first_class_mail_type_usps = fields.Char(string='First Class Mail Type')

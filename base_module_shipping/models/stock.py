@@ -247,7 +247,7 @@ class stock_picking(models.Model):
     #    product_id = fields.Many2one(string='Product name', related='product_id.move_lines')
     #    product_qty = fields.related('move_lines', 'product_qty', type='char', string='Qty')
     #    product_qty = fields.Char(string='Qty', related='move_lines.product_qty')
-    shipping_type = fields.Selection([('All', 'All')], 'Shipping Type', default='All')
+    shipping_type = fields.Selection([('Fedex', 'Fedex'), ('UPS', 'UPS'), ('USPS', 'USPS'),('All', 'All')], 'Shipping Type', default='All')
     use_shipping = fields.Boolean(string='Use Shipping', default=True)
     is_residential = fields.Boolean(string='Residential')
     weight_package = fields.Float(string='Package Weight', digits=dp.get_precision('Stock Weight'),
@@ -495,7 +495,9 @@ class stock_picking(models.Model):
                 residential = stockpicking.is_residential
                 if not weight:
                     raise osv.except_osv(_('Error'), _('Package Weight Invalid!'))
-                cust_address = stockpicking.sale_id.shop_id.cust_address or False
+                # cust_address = stockpicking.sale_id.shop_id.cust_address or False
+                ship_usps = self.env['shipping.usps'].search([('active', '=', True)])
+                cust_address = ship_usps.config_shipping_address_id or False
                 if not cust_address:
                     if 'error' not in context.keys() or context.get('error', False):
                         raise Exception('Shop Address not defined!')
@@ -710,8 +712,10 @@ class stock_picking(models.Model):
         rate_service = {}
         if context is None:
             context = {}
+        ship_usps = self.env['shipping.usps'].search([('active', '=', True)])
+        # shop_address = sale_id and sale_id.shop_id.cust_address or False
+        shop_address = ship_usps.config_shipping_address_id or False
 
-        shop_address = sale_id and sale_id.shop_id.cust_address or False
         if not shop_address:
             if 'error' not in context.keys() or context.get('error', False):
                 raise Exception('Shop Address not defined!')
@@ -721,7 +725,7 @@ class stock_picking(models.Model):
         shipper = Address(shop_address.name or shop_address.name, shop_address.street, shop_address.city,
                           shop_address.state_id.code or '', shop_address.zip, shop_address.country_id.code,
                           shop_address.street2 or '', shop_address.phone or '', shop_address.email, shop_address.name)
-        ### Recipient
+        # Recipient
         cust_address = sale_id.partner_shipping_id
         receipient = Address(cust_address.name or cust_address.name, cust_address.street, cust_address.city,
                              cust_address.state_id.code or '', cust_address.zip, cust_address.country_id.code,

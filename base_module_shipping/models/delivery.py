@@ -29,3 +29,4 @@ class delivery_carrier(models.Model):
     is_expedited = fields.Boolean(string='Is Expedited')
     partner_id = fields.Many2one('res.partner', string='Recipient', required=True)
     size_usps = fields.Selection([('REGULAR', 'Regular'), ('LARGE', 'Large')], string='Size')
+    is_fedex = fields.Boolean('Is Fedex')
