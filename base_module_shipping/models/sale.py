@@ -34,11 +34,6 @@ logger = logging.getLogger(__name__)
 class sale_order(models.Model):
     _inherit = "sale.order"
 
-    def _get_shipping_type(self):
-        return [
-            ('All', 'All'),
-        ]
-
     def _default_journal(self):
         accountjournal_obj = self.env['account.journal']
         accountjournal_ids = accountjournal_obj.search([('name', '=', 'Sales Journal')])
@@ -48,15 +43,14 @@ class sale_order(models.Model):
             #            raise wizard.except_wizard(_('Error !'), _('Sales journal not defined.'))
             return False
 
-    project_id = fields.Many2one('project.project', string='Project', readonly=True)
     use_shipping = fields.Boolean(string='Use Shipping', default=True)
-    shipping_type = fields.Selection(_get_shipping_type, string='Shipping Type', default='All')
+    shipping_type = fields.Selection([('All', 'All')], string='Shipping Type', default='All')
     weight_package = fields.Float(string='Package Weight', digits=dp.get_precision('Stock Weight'),
-                                  help="Package weight which comes from weighinig machine in pounds", default='1')
+                                  help="Package weight which comes from weighing machine in pounds", default='1')
     length_package = fields.Float(string='Package Length', default='1')
     width_package = fields.Float(string='Package Width', default='1')
     height_package = fields.Float(string='Package Height', default='1')
-    units_package = fields.Char(string='Package Units', size=64, default='1')
+    units_package = fields.Char(string='Package Units', default='1')
     dropoff_type_fedex = fields.Selection([
         ('REGULAR_PICKUP', 'REGULAR PICKUP'),
         ('REQUEST_COURIER', 'REQUEST COURIER'),
@@ -66,16 +60,16 @@ class sale_order(models.Model):
     ], string='Dropoff Type', default='REGULAR_PICKUP')
     shipping_label = fields.Binary(string='Logo')
     shipping_rate = fields.Float(string='Shipping Rate')
-    batch_no = fields.Char(string='Batch No', size=64)
+    batch_no = fields.Char(string='Batch No')
     is_faulty = fields.Boolean(string='Is faulty')
     is_international = fields.Boolean(string='Is International')
     is_expedited = fields.Boolean('Is Expedited')
     is_one_day_expedited = fields.Boolean(string='Is One Day Expedited')
     is_two_day_expedited = fields.Boolean(string='Is Two Day Expedited')
-    sku = fields.Char(string='sku', size=64)
+    sku = fields.Char(string='sku')
     # default field
     invalid_addr = fields.Boolean(string='Invalid Address', readonly=True)
-    client_order_ref = fields.Char(string='Tracking Number', size=64)
+    client_order_ref = fields.Char(string='Tracking Number')
     journal_id = fields.Many2one('account.journal', string='Journal', readonly=True, default=_default_journal)
     response_usps_ids = fields.One2many('shipping.response', 'saleorder_id', string='Shipping Response')
 
@@ -86,11 +80,13 @@ class sale_order(models.Model):
         parameters:
             No parameters
         """
+        global cust_address
         context = self._context.copy()
         picking_obj = self.env['stock.picking']
         if context is None:
             context = {}
         pick_data = picking_obj.search([('origin', '=', self.name)])
+
         for stockpicking in self:
             #            try:
             shipping_type = stockpicking.shipping_type
@@ -112,8 +108,11 @@ class sale_order(models.Model):
             weight = stockpicking.weight_package
             if not weight:
                 raise Exception('Package Weight Invalid!')
-            if cust_address.country_id.code != stockpicking.partner_id.country_id.code:
-                residential = True
+            if cust_address:
+                if cust_address.country_id.code != stockpicking.partner_id.country_id.code:
+                    residential = True
+                else:
+                    residential = False
             else:
                 residential = False
             if not cust_address:
@@ -221,13 +220,7 @@ class sale_order(models.Model):
             return True
 
 
-sale_order()
-
-
 class shipping_response(models.Model):
     _inherit = "shipping.response"
 
     saleorder_id = fields.Many2one('sale.order', string='Picking')
-
-
-shipping_response()

@@ -41,9 +41,9 @@
             </field>
         </record>
 
-<!--        <record id="shipping_endicia_tree" model="ir.ui.view">
+        <record id="shipping_endicia_tree" model="ir.ui.view">
             <field name="name">shipping.endicia.tree</field>
-            <field name="model">shipping.endicia</field>
+            <field name="model">shipping.usps</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
                 <tree string="Endicia Settings">
@@ -53,19 +53,17 @@
                     <field name="passphrase"/>
                 </tree>
             </field>
-        </record>-->
-
-<!--        <record id="shipping_endicia_action" model="ir.actions.act_window">
+        </record>
+        <record id="shipping_endicia_action" model="ir.actions.act_window">
             <field name="name">Endicia Settings</field>
             <field name="type">ir.actions.act_window</field>
-            <field name="res_model">shipping.endicia</field>
-            <field name="view_type">form</field>
+            <field name="res_model">shipping.usps</field>
+<!--            <field name="view_type">form</field>-->
             <field name="view_id" ref="shipping_endicia_tree"/>
             <field name="help">Key in RequesterID, AccountID and Passphrase which you get from Endicia.</field>
         </record>
-         Endicia End 
-
-        <menuitem id="menu_endicia_setting" name="Endicia Settings" parent="shipping_teckzilla.menu_shipping_service" action="shipping_endicia_action" />-->
+         Endicia End
+        <menuitem id="menu_endicia_setting" name="Endicia Settings" parent="base_module_shipping.menu_shipping_service" action="shipping_endicia_action" />
 
    </data>
 </odoo>

@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 ##############################################################################
-#Copyright (c) 2015 - Present Planet Odoo. All Rights Reserved
+# Copyright (c) 2015 - Present Planet Odoo. All Rights Reserved
 #    Author: [Planet Odoo]
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -26,12 +26,12 @@
     'description': """
      Odoo Integration with USPS, UPS and Fedex
     """,
-    "website" : "www.planet-odoo.com",
+    "website": "www.planet-odoo.com",
     'author': 'Planet Odoo',
-    'depends': ['sale','stock','delivery','product','sale_stock'],
+    'depends': ['sale', 'stock', 'delivery', 'product', 'sale_stock'],
     'css': [
         'static/src/css/rotate_label.css',
-        ],
+    ],
     "demo": [],
     "data": [
         "security/shipping_security.xml",
@@ -44,7 +44,7 @@
         'view/stock_view.xml',
         'view/delivery_view.xml',
         'view/product_view.xml',
-        'view/shipping_data.xml',
+        # 'view/shipping_data.xml',
         'wizard/refund_request_view.xml',
     ],
     'auto_install': False,

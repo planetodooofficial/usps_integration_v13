@@ -29,7 +29,7 @@ class generate_shipping_quotes(models.TransientModel):
     _name = "generate.shipping.quotes"
     _description = "Generate Shipping Quotes"
 
-    name = fields.Char(string='Batch No', size=64,
+    name = fields.Char(string='Batch No',
                        defaults=lambda self, cr, uid, context: self.pool['ir.sequence'].next_by_code(cr, uid,
                                                                                                      'print.packing.slip',
                                                                                                      context=context))
@@ -76,7 +76,7 @@ class generate_shipping_quotes(models.TransientModel):
                             [('service_output', '=', picking_data.service_type_fedex), ('is_fedex', '=', True)])
                     elif picking_data.shipping_type.lower() == 'ups':
                         carrier_ids = self.env['delivery.carrier'].search(
-                            [('service_output', '=', picking_data.service_type_ups), ('is_ups', '=', True)])
+                            [('service_output', '=', picking_data.service_type_ups), ('is_usps', '=', True)])
                     if not carrier_ids:
                         picking_data.write(
                             {'is_faulty': True, 'error_for_faulty': 'Shipping service output settings not defined'})

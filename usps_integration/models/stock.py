@@ -92,7 +92,7 @@ class stock_picking(models.Model):
         if 'usps_endicia_active' in self._context.keys() and self._context['usps_endicia_active'] == False:
             return False
 
-        ship_endicia = self.env['shipping.endicia'].get_endicia_info()
+        ship_endicia = self.env['shipping.usps'].get_endicia_info()
         credentials = {'partner_id': ship_endicia.requester_id, 'account_id': ship_endicia.account_id,
                        'passphrase': ship_endicia.passphrase}
 

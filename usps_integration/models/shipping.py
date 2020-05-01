@@ -58,10 +58,10 @@ class shipping_usps(models.Model):
             ship_usps_id = ship_usps_id[0]
         return ship_usps_id
 
-    name = fields.Char(string='Name', size=64, required=True, translate=True)
-    requester_id = fields.Char(string='RequesterID', size=64, required=True)
-    account_id = fields.Char(string='AccountID', size=64, required=True)
-    passphrase = fields.Char(string='Passphrase', size=64, required=True)
+    name = fields.Char(string='Name', required=True, translate=True)
+    requester_id = fields.Char(string='RequesterID', required=True)
+    account_id = fields.Char(string='AccountID', required=True)
+    passphrase = fields.Char(string='Passphrase', required=True)
     test = fields.Boolean(string='Is test?')
     active = fields.Boolean(string='Active', default=True)
     label_type = fields.Selection([
@@ -70,7 +70,7 @@ class shipping_usps(models.Model):
         ('DestinationConfirm', 'Destination Confirm'),
         ('Domestic', 'Domestic'),
         ('International', 'International')
-    ], string='Label Type', size=64, required=True)
+    ], string='Label Type', required=True)
     label_size = fields.Selection([
         ('4X6', '4X6'),
         ('4X5', '4X5'),

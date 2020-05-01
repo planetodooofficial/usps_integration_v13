@@ -1,4 +1,4 @@
 name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access.shipping.usps,usps_integration.model_shipping_usps,base_module_shipping.group_shipping_manager
+access.shipping.usps,usps_integration.model_shipping_usps,base_module_shipping.group_shipping_manager,1,1,1,1
 access.buying.postage,usps_integration.model_buying_postage,base_module_shipping.group_shipping_manager,1,1,1,1
 access.change.passphrase,usps_integration.model_change_passphrase,base_module_shipping.group_shipping_manager,1,1,1,1

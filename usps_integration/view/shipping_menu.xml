@@ -2,7 +2,10 @@
 <odoo>
 	<data>
                 
-                <menuitem id="menu_usps_setting" name="USPS Settings" parent="base_module_shipping.menu_shipping_service" action="shipping_usps_action" />
+                <menuitem id="menu_usps_setting"
+                          name="USPS Settings"
+                          parent="base_module_shipping.menu_shipping_service"
+                          action="shipping_usps_action" />
                 
        </data>
 </odoo>

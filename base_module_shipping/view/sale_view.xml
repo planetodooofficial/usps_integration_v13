@@ -1,28 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-<!--        <record id="view_shop_form_shp1" model="ir.ui.view">
-           <field name="name">sale.shop.form.shp1</field>
-           <field name="model">sale.shop</field>
-           <field name="inherit_id" ref="saas_migration.view_shop_form"/>
-           <field name="arch" type="xml">
-               <xpath expr="//field[@name='project_id']" position="after">
-                   <field name="suffix"/>
-                   <field name="cust_address"/>
-               </xpath>
-           </field>
-       </record>-->
 
-<!--    	<record id="view_order_form_inherit_frm_shp1" model="ir.ui.view">-->
-<!--            <field name="name">sale.order.form.inherit.frm.shp1</field>-->
-<!--            <field name="model">sale.order</field>-->
-<!--            <field name="inherit_id" ref="sale.view_order_form" />-->
-<!--            <field name="arch" type="xml">-->
-<!--&lt;!&ndash;                <field name="project_id" position="after">&ndash;&gt;-->
-<!--&lt;!&ndash;                   <field name="invalid_addr"/>&ndash;&gt;-->
-<!--&lt;!&ndash;                </field>&ndash;&gt;-->
-<!--            </field>-->
-<!--        </record>-->
+    	<record id="view_order_form_inherit_frm_shp1" model="ir.ui.view">
+            <field name="name">sale.order.form.inherit.frm.shp1</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form" />
+            <field name="arch" type="xml">
+                <field name="payment_term_id" position="after">
+                   <field name="invalid_addr"/>
+                </field>
+            </field>
+        </record>
 
         <record id="view_order_form_inherit_frm_shp2" model="ir.ui.view">
             <field name="name">sale.order.form.inherit.frm.shp2</field>

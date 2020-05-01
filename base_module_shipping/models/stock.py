@@ -90,7 +90,7 @@ class shipping_response(models.Model):
         elif shippingresp_lnk.type.lower() == 'ups':
             result = self.generate_ups_tracking_no(cr, uid, shippingresp_lnk.picking_id, context)
             carrier_ids = self.pool.get('delivery.carrier').search(cr, uid, [
-                ('service_output', '=', picking_data.service_type_ups), ('is_ups', '=', True)])
+                ('service_output', '=', picking_data.service_type_ups), ('is_usps', '=', True)])
         if context.get('track_success', False):
             if not carrier_ids:
                 raise osv.except_osv(_('Error'), _('Shipping service output settings not defined'))
@@ -107,10 +107,10 @@ class shipping_response(models.Model):
 
     _order = 'sr_no'
 
-    name = fields.Char(string='Service Type', size=100, readonly=True)
-    type = fields.Char(string='Shipping Type', size=64, readonly=True)
-    usps_type = fields.Char(string='USPS Type', size=64)
-    rate = fields.Char(string='Rate', size=64, readonly=True)
+    name = fields.Char(string='Service Type', readonly=True)
+    type = fields.Char(string='Shipping Type', readonly=True)
+    usps_type = fields.Char(string='USPS Type')
+    rate = fields.Char(string='Rate', readonly=True)
     weight = fields.Float(string='Weight')
     cust_default = fields.Boolean(string='Customer Default')
     sys_default = fields.Boolean(string='System Default')
@@ -210,6 +210,19 @@ def get_ups_servicetype_name(code, mag_code=False):
         return False
 
 
+def _get_total_product_weight(lines):
+    weight = 0.0
+    for line in lines:
+        product_qty = 0.0
+        try:
+            product_qty = line.product_uos_qty
+        except Exception as e:
+            product_qty = line.product_qty
+
+        weight += line.product_id.product_tmpl_id.weight_net * product_qty
+    return weight
+
+
 class stock_picking(models.Model):
     _inherit = "stock.picking"
 
@@ -242,7 +255,7 @@ class stock_picking(models.Model):
     length_package = fields.Float(string='Package Length')
     width_package = fields.Float(string='Package Width')
     height_package = fields.Float(string='Package Height')
-    units_package = fields.Char(string='Package Units', size=64, default='IN')
+    units_package = fields.Char(string='Package Units', default='IN')
     service_type_usps = fields.Selection([
         ('First Class', 'First Class'),
         ('First Class HFP Commercial', 'First Class HFP Commercial'),
@@ -266,14 +279,14 @@ class stock_picking(models.Model):
         ('Library', 'Library'),
         ('All', 'All'),
         ('Online', 'Online'),
-    ], string='Service Type', size=100)
+    ], string='Service Type')
 
     first_class_mail_type_usps = fields.Selection([
         ('Letter', 'Letter'),
         ('Flat', 'Flat'),
         ('Parcel', 'Parcel'),
         ('Postcard', 'Postcard'),
-    ], string='First Class Mail Type', size=50)
+    ], string='First Class Mail Type')
     size_usps = fields.Selection([('REGULAR', 'Regular'), ('LARGE', 'Large')], string='Size')
     width_usps = fields.Float(string='Width', digits=dp.get_precision('Stock Weight'))
     length_usps = fields.Float(string='Length', digits=dp.get_precision('Stock Weight'))
@@ -297,7 +310,7 @@ class stock_picking(models.Model):
         ('STANDARD_OVERNIGHT', 'STANDARD_OVERNIGHT'),
         ('PRIORITY_OVERNIGHT', 'PRIORITY_OVERNIGHT'),
         ('FEDEX_GROUND', 'FEDEX_GROUND'),
-    ], string='Service Type', size=100)
+    ], string='Service Type')
     packaging_type_fedex = fields.Selection([
         ('FEDEX_BOX', 'FEDEX BOX'),
         ('FEDEX_PAK', 'FEDEX PAK'),
@@ -327,13 +340,13 @@ class stock_picking(models.Model):
     shipping_label = fields.Binary(string='Logo')
     shipping_rate = fields.Float(string='Shipping Rate')
     response_usps_ids = fields.One2many('shipping.response', 'picking_id', string='Shipping Response')
-    batch_no = fields.Char('Batch No', size=64)
+    batch_no = fields.Char('Batch No')
     is_faulty = fields.Boolean(string='Is faulty')
     is_international = fields.Boolean(string='Is International')
     is_expedited = fields.Boolean(string='Is Expedited')
     is_one_day_expedited = fields.Boolean(string='Is One Day Expedited')
     is_two_day_expedited = fields.Boolean(string='Is Two Day Expedited')
-    sku = fields.Char(string='sku', size=64)
+    sku = fields.Char(string='sku')
     error_for_faulty = fields.Text('Error Log Faulty Order')
     label_printed = fields.Boolean('Label Printed')
     label_printed_datetime = fields.Date('Label Printed on Date')
@@ -363,19 +376,18 @@ class stock_picking(models.Model):
         ('RegionalRateBoxB', 'RegionalRateBoxB'),
         ('Rectangular', 'Rectangular'),
         ('Non-Rectangular', 'Non-Rectangular'),
-    ], string='Container', size=100)
+    ], string='Container')
     number_of_packages = fields.Integer(string='Number of Packages', copy=False)
-    company_id = fields.Many2one('res.company', string='Company', store=True, readonly=False)
 
     def generate_fedex_shipping(self, id, dropoff_type_fedex, service_type_fedex, packaging_type_fedex,
                                 package_detail_fedex, payment_type_fedex, physical_packaging_fedex, weight,
                                 shipper_postal_code, shipper_country_code, customer_postal_code, customer_country_code,
                                 sys_default=False, cust_default=False, error=True, context=None):
-        '''
-        This function is used to Get shipping rates for Fedex 
-        parameters: 
+        """
+        This function is used to Get shipping rates for Fedex
+        parameters:
             All the Fedex Shipping and packaging type parameters
-        '''
+        """
         fedex_rate = self.return_fedex_shipping_rate(dropoff_type_fedex, service_type_fedex, packaging_type_fedex,
                                                      package_detail_fedex, payment_type_fedex, physical_packaging_fedex,
                                                      weight, shipper_postal_code, shipper_country_code,
@@ -465,11 +477,11 @@ class stock_picking(models.Model):
 
     # @api.multi
     def generate_shipping(self):
-        '''
+        """
         This function is used to Get the shipping Rates in Delivery Order
-        parameters: 
+        parameters:
             No parameters
-        '''
+        """
         context = dict(self._context or {})
         context = self._context.copy()
         if context is None:
@@ -494,7 +506,7 @@ class stock_picking(models.Model):
                                   cust_address.state_id.code or '', cust_address.zip, cust_address.country_id.code,
                                   cust_address.phone or '', cust_address.email, cust_address.name)
 
-                ### Recipient
+                # Recipient
                 cust_address = stockpicking.partner_id
                 receipient = Address(cust_address.name, cust_address.street, cust_address.street2 or '',
                                      cust_address.city, cust_address.state_id.code or '', cust_address.zip,
@@ -584,7 +596,7 @@ class stock_picking(models.Model):
             carrier_obj = self.env['delivery.carrier']
             carrier_lnk = carrier_obj
             cust_default = ''
-            if carrier_lnk.is_ups:
+            if carrier_lnk.is_usps:
                 cust_default = 'UPS'
                 service_type_ups = carrier_lnk.service_output or '03'
                 cust_default += '/' + service_type_ups
@@ -855,7 +867,7 @@ class stock_picking(models.Model):
                         vals['service_type_usps'] = carrier.service_output
                         vals['container_usps'] = carrier.container_usps
                         vals['size_usps'] = carrier.size_usps
-                    elif carrier.is_ups:
+                    elif carrier.is_usps:
                         vals['shipping_type'] = 'UPS'
                         vals['pickup_type_ups'] = '01'
                         vals['service_type_ups'] = carrier.service_output
@@ -912,18 +924,6 @@ class stock_picking(models.Model):
             vals['service_type_fedex'] = sys_default.split('/')[1] or ''
         return vals
 
-    def _get_total_product_weight(self, lines):
-        weight = 0.0
-        for line in lines:
-            product_qty = 0.0
-            try:
-                product_qty = line.product_uos_qty
-            except Exception as e:
-                product_qty = line.product_qty
-
-            weight += line.product_id.product_tmpl_id.weight_net * product_qty
-        return weight
-
     # @api.multi
     def _get_heaviest_product(self, id, lines):
         """
@@ -978,6 +978,3 @@ class stock_picking(models.Model):
                 return False
             self.pool.get('stock.move').action_assign(cr, uid, move_ids)
         return True
-
-
-stock_picking()

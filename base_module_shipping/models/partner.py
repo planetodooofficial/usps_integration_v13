@@ -25,6 +25,3 @@ class res_partner(models.Model):
     _inherit = "res.partner"
 
     invalid_addr = fields.Boolean(string='Invalid Address', readonly=True)
-
-
-res_partner()

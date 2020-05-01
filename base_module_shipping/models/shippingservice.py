@@ -427,7 +427,7 @@ class USPSShipping(Shipping):
         data = datas[0]
         api_url = datas[1]
         values = {'XML': data}
-        api_url = api_url + urllib.urlencode(values)
+        api_url = api_url + urllib.parse.urlencode(values)
         logger.info('=api_url==%s', api_url)
         try:
             request = urlopen(api_url)

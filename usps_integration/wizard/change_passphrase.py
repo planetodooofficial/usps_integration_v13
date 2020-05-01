@@ -45,4 +45,4 @@ class change_passphrase(models.TransientModel):
 
         return {'type': 'ir.actions.act_window_close'}
 
-    name = fields.Char(string='New Passphrase', size=100, required=True)
+    name = fields.Char(string='New Passphrase', required=True)

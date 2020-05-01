@@ -5,6 +5,5 @@
         <record id="group_shipping_manager" model="res.groups">
             <field name="name">Shipping Manager</field>
         </record>
-        
     </data>
 </odoo>

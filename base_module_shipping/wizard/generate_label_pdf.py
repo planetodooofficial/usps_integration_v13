@@ -49,7 +49,7 @@ class generate_label_pdf(models.TransientModel):
             path += i + '/'
         new_path = path + 'static/src/'
         random_sequence = random.sample(range(1, 1000), 1)
-        batch_file = str(new_path) + '/sevicelabel' + str(random_sequence[0]) + '.pdf'
+        batch_file = str(new_path) + 'servicelabel' + str(random_sequence[0]) + '.pdf'
 
         if os.path.exists(batch_file):
             os.remove(batch_file)
@@ -66,12 +66,12 @@ class generate_label_pdf(models.TransientModel):
                     f = open(file1, 'wb')
                     f.write(b64decode(a_obj.datas))
                     f.close()
-                    merger.append(PdfFileReader(file(file1, 'rb')))
+                    # merger.append(PdfFileReader(file1, 'rb'))
                 pick.write({'label_printed': True, 'label_printed_datetime': date})
         merger.write(str(batch_file))
         self._cr.commit()
         if attachment_ids:
-            url = ip_address + "/base_module_shipping/static/src" + '/sevicelabel' + str(random_sequence[0]) + '.pdf'
+            url = ip_address + "/base_module_shipping/static/src" + '/servicelabel' + str(random_sequence[0]) + '.pdf'
             return {
                 'type': 'ir.actions.act_url',
                 'url': url,
