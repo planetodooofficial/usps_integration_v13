@@ -30,3 +30,6 @@ class delivery_carrier(models.Model):
     partner_id = fields.Many2one('res.partner', string='Recipient', required=True)
     size_usps = fields.Selection([('REGULAR', 'Regular'), ('LARGE', 'Large')], string='Size')
     is_fedex = fields.Boolean('Is Fedex')
+    is_usps = fields.Boolean('Is USPS')
+    container_usps = fields.Char(string='Container')
+    first_class_mail_type_usps = fields.Char(string='First Class Mail Type')

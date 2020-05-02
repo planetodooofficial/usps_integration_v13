@@ -98,7 +98,7 @@ class shipping_response(models.Model):
             saleorder_obj.write(cr, uid, picking_data.sale_id.id,
                                 {'client_order_ref': context['tracking_no'], 'carrier_id': carrier_ids[0]})
 
-            ### Write this shipping respnse is selected
+            # Write this shipping respnse is selected
             self.write(cr, uid, ids[0], {'selected': True})
             self.pool.get('stock.picking').do_transfer(cr, uid, [picking_data.id], context=context)
             return True
@@ -247,7 +247,8 @@ class stock_picking(models.Model):
     #    product_id = fields.Many2one(string='Product name', related='product_id.move_lines')
     #    product_qty = fields.related('move_lines', 'product_qty', type='char', string='Qty')
     #    product_qty = fields.Char(string='Qty', related='move_lines.product_qty')
-    shipping_type = fields.Selection([('Fedex', 'Fedex'), ('UPS', 'UPS'), ('USPS', 'USPS'),('All', 'All')], 'Shipping Type', default='All')
+    shipping_type = fields.Selection([('Fedex', 'Fedex'), ('UPS', 'UPS'), ('USPS', 'USPS'), ('All', 'All')],
+                                     'Shipping Type', default='All')
     use_shipping = fields.Boolean(string='Use Shipping', default=True)
     is_residential = fields.Boolean(string='Residential')
     weight_package = fields.Float(string='Package Weight', digits=dp.get_precision('Stock Weight'),
@@ -624,13 +625,13 @@ class stock_picking(models.Model):
         return cust_default
 
     def _get_sys_default_shipping(self, sale_id, product_id, weight):
-        '''
+        """
         This function is used to Get the default shipping type based on product Id, Weight and sale order Id
-        parameters: 
-            sale_id : (int) 
-            product_id : (int) 
-            weight : (float) 
-        '''
+        parameters:
+            sale_id : (int)
+            product_id : (int)
+            weight : (float)
+        """
         context = dict(self._context or {})
         product_obj = self.env['product.product']
         product_shipping_obj = self.env['product.product.shipping']
@@ -797,7 +798,6 @@ class stock_picking(models.Model):
                         rate_service['ups_rate'] = ups_rate
                         pass
 
-
                 elif product_shipping_data.shipping_type == 'Fedex':
                     service_type_fedex = 'FEDEX_GROUND'
                     if product_shipping_data:
@@ -905,7 +905,7 @@ class stock_picking(models.Model):
         lines = saleorder_lnk.order_line
         heaviest_product_id = self._get_heaviest_product(False, lines)
         product = prod_obj.browse(heaviest_product_id)
-        vals['is_deliveryconfirmation'] = True if saleorder_lnk.amount_total >= 200.0 else False
+        # vals['is_deliveryconfirmation'] = True if saleorder_lnk.amount_total >= 200.0 else False
         sys_default = self._get_sys_default_shipping(saleorder_lnk, heaviest_product_id, weight)
         logger.info('sys_default=====> %s', sys_default)
         if sys_default.split('/')[0] == 'USPS':

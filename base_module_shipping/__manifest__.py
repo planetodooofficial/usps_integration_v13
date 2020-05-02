@@ -44,7 +44,7 @@
         'view/stock_view.xml',
         'view/delivery_view.xml',
         'view/product_view.xml',
-        # 'view/shipping_data.xml',
+        'view/shipping_data.xml',
         'wizard/refund_request_view.xml',
     ],
     'auto_install': False,

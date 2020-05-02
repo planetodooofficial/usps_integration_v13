@@ -153,7 +153,7 @@ class stock_picking(models.Model):
                                              cust_address.street != cust_address.street2) and cust_address.street2.rstrip(
                                          ',') or '', cust_address.phone or '', cust_address.email,
                                      (cust_address.name != cust_address.name) and cust_address.name or '')
-                lines = self.env['sale.order'].browse(self.sale_id.id).order_line
+                lines = self.env['sale.order'].browse(self.sale_id.id)
                 heaviest_product_id = self._get_heaviest_product([id], lines)
                 sys_default = self._get_sys_default_shipping(lines.sale_id, heaviest_product_id, weight)
                 self.context['sys_default'] = sys_default
