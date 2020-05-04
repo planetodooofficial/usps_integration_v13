@@ -1,6 +1,6 @@
 import logging
 
-#from custom.usps_integration_v13.usps_integration.models import endicia
+from custom.usps_integration_v13.usps_integration.models import endicia
 from odoo import models, fields
 from odoo.exceptions import UserError
 from odoo.tools.translate import _
