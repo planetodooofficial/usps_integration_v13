@@ -11,8 +11,10 @@ from urllib.request import urlopen
 
 import suds
 from suds.client import Client
-
-from .shipping_endicia import get_country_code
+import sys
+sys.path.insert(1, '/opt/odoo13e/custom/usps_integration_v13/usps_integration/models')
+import shipping_endicia
+#from . import shipping_endicia
 
 logger = logging.getLogger('endicia')
 
