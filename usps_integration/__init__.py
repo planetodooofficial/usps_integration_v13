@@ -19,5 +19,6 @@
 ##############################################################################
 from . import models
 from . import wizard
+from .models import endicia
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
