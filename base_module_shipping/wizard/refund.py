@@ -1,5 +1,5 @@
 from odoo import models, api
-from custom.usps_integration_v13.usps_integration.models import endicia
+#from custom.usps_integration_v13.usps_integration.models import endicia
 import logging
 
 _logger = logging.getLogger(__name__)
