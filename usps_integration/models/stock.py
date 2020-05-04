@@ -29,7 +29,7 @@ from PIL import Image
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Image
 
-from base_module_shipping.models.miscellaneous import Address
+from .base_module_shipping.models import miscellaneous
 from odoo import models, fields
 from odoo.osv import osv
 from odoo.tools.translate import _
