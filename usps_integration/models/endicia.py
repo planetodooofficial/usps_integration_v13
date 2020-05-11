@@ -11,9 +11,11 @@ from urllib.request import urlopen
 
 import suds
 from suds.client import Client
-import sys
-sys.path.insert(1, '/opt/odoo13e/custom/usps_integration_v13/usps_integration/models')
-import shipping_endicia
+# import sys
+# sys.path.insert(1, '/opt/odoo13e/custom/usps_integration_v13/usps_integration/models')
+
+from custom_addons.usps_integration_v13.usps_integration.models.shipping_endicia import *
+# import shipping_endicia
 #from . import shipping_endicia
 
 logger = logging.getLogger('endicia')
@@ -417,8 +419,8 @@ def _parse_response_body(root, namespace):
 
 class RecreditRequest(EndiciaRequest):
     def __init__(self, partner_id, account_id, passphrase, amount, debug=False):
-        url = u'BuyPostageXML'
-        api = u'recreditRequestXML'
+        url = 'BuyPostageXML'
+        api = u'https://elstestserver2.endicia.com/LabelService/EwsLabelService.asmx?wsdl'
         super(RecreditRequest, self).__init__(url, api, debug)
 
         self.partner_id = partner_id

@@ -2,8 +2,9 @@ import logging
 
 #from custom.usps_integration_v13.usps_integration.models import endicia
 import sys
-sys.path.insert(1, '/opt/odoo13e/custom/usps_integration_v13/usps_integration/models')
-import endicia
+# sys.path.insert(1, '/opt/odoo13e/custom/usps_integration_v13/usps_integration/models')
+# import endicia
+from custom_addons.usps_integration_v13.usps_integration.models import endicia
 from odoo import models
 from odoo.osv import osv
 from odoo.tools.translate import _

@@ -30,8 +30,9 @@ from reportlab.pdfgen import canvas
 from reportlab.platypus import Image
 
 import sys
-sys.path.insert(1, '/opt/odoo13e/custom/usps_integration_v13/base_module_shipping/models')
-import miscellaneous
+#sys.path.insert(1, '/opt/odoo13e/custom/usps_integration_v13/base_module_shipping/models')
+#import miscellaneous
+from custom_addons.usps_integration_v13.base_module_shipping.models.miscellaneous import *
 from odoo import models, fields
 from odoo.osv import osv
 from odoo.tools.translate import _

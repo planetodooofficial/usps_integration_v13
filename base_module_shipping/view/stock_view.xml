@@ -37,8 +37,14 @@
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">shipping.response</field>
             <field name="view_id" ref="view_shipping_response_tree"/>
+            <field name="view_mode">tree,form</field>
             <field name="help">Key in Server name and User ID which you get from USPS website.</field>
         </record>
+
+         <menuitem action="shipping_response_action"
+                  id="action_id_for_response"
+                  parent="stock.menu_stock_warehouse_mgmt"
+                  sequence="6"/>
 
         <!-- shipping_usps_response end -->
         <record id="view_picking_out_form_inherit_shb1" model="ir.ui.view">

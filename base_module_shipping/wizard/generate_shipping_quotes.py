@@ -57,11 +57,12 @@ class generate_shipping_quotes(models.TransientModel):
         result = False
         context = dict(self._context or {})
         if context.get('active_ids', False):
-            picking_obj = self.env['stock.picking']
-            sale_obj = self.env['sale.order']
+            stock_pick = context.get('active_model')
+            picking_obj = self.env['stock.picking'].search([])
+            sale_obj = self.env['sale.order'].search([])
             carrier_ids = []
             (data,) = self
-            shipping_response_obj = self.env['shipping.response']
+            shipping_response_obj = self.env['shipping.response'].search([])
             picking_ids = context['active_ids']
             for picking_id in picking_ids:
                 picking_data = picking_obj.browse(picking_id)

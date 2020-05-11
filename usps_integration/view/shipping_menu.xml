@@ -6,6 +6,8 @@
                           name="USPS Settings"
                           parent="base_module_shipping.menu_shipping_service"
                           action="shipping_usps_action" />
+
+
                 
        </data>
 </odoo>
