@@ -25,6 +25,10 @@ import xml.etree.ElementTree as etree
 from urllib.error import URLError
 from urllib.request import Request
 from urllib.request import urlopen
+import requests
+import json
+import xmltodict
+
 
 logger = logging.getLogger('shippingservice')
 
@@ -424,15 +428,19 @@ class USPSShipping(Shipping):
 
     def send(self, ):
         datas = self._get_data()
-        data = datas[0]
-        api_url = datas[1]
-        values = {'XML': data}
-        api_url = api_url + urllib.parse.urlencode(values)
-        logger.info('=api_url==%s', api_url)
+
+
+
+        # data = datas[0]
+        # api_url = datas[1]
+        # values = {'XML': data}
+        # api_url = api_url + urllib.parse.urlencode(values)
+        # logger.info('=api_url==%s', api_url)
         try:
-            request = urlopen(api_url)
-            response_text = request.read()
-            response = self.__parse_response(response_text)
+            d = datas.text.encode('utf8')
+            py_res = json.dumps(xmltodict.parse(d))
+            print(py_res)
+            response = json.loads(py_res)
         except URLError as e:
             if hasattr(e, 'reason'):
                 logger.info('=Could not reach the server, reason:=%s', e.reason)
@@ -473,35 +481,94 @@ class USPSRateRequest(USPSShipping):
         self.sys_default = sys_default
         super(USPSRateRequest, self).__init__(weight, shipper, receipient)
 
+    # def _get_data(self):
+    #     data = []
+    #
+    #     service_type = '<Service>' + self.service_type_usps + '</Service>'
+    #
+    #     if self.service_type_usps == 'First Class':
+    #         service_type += '<FirstClassMailType>' + self.first_class_mail_type_usps + '</FirstClassMailType>'
+    #
+    #     weight = math.modf(self.weight)
+    #     pounds = int(weight[1])
+    #     ounces = round(weight[0], 2) * 16
+    #
+    #     container = self.container_usps and '<Container>' + self.container_usps + '</Container>' or '<Container/>'
+    #
+    #     size = '<Size>' + self.size_usps + '</Size>'
+    #     if self.size_usps == 'LARGE':
+    #         size += '<Width>' + self.width_usps + '</Width>'
+    #         size += '<Length>' + self.length_usps + '</Length>'
+    #         size += '<Height>' + self.height_usps + '</Height>'
+    #
+    #         if self.container_usps == 'Non-Rectangular' or self.container_usps == 'Variable' or self.container_usps == '':
+    #             size += '<Girth>' + self.girth_usps + '</Girth>'
+    #
+    #     data.append(
+    #         '<RateV4Request USERID="' + self.usps_info.user_id + '"><Revision/><Package ID="1ST">' + service_type + '<ZipOrigination>' + self.shipper.zip + '</ZipOrigination><ZipDestination>' + self.receipient.zip + '</ZipDestination><Pounds>' + str(
+    #             pounds) + '</Pounds><Ounces>' + str(
+    #             ounces) + '</Ounces>' + container + size + '<Machinable>true</Machinable></Package></RateV4Request>')
+    #     data.append("http://production.shippingapis.com/ShippingAPI.dll?API=RateV4&")
+    #     return data
+
     def _get_data(self):
-        data = []
 
-        service_type = '<Service>' + self.service_type_usps + '</Service>'
+        url = "https://elstestserver.endicia.com/LabelService/EwsLabelService.asmx"
 
-        if self.service_type_usps == 'First Class':
-            service_type += '<FirstClassMailType>' + self.first_class_mail_type_usps + '</FirstClassMailType>'
+        payload = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" \
+                  "<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n               " \
+                  "xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\"\n               " \
+                  "xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  " \
+                  "<soap:Body>\n    <CalculatePostageRate xmlns=\"www.envmgr.com/LabelService\">\n      " \
+                  "<PostageRateRequest ResponseVersion=\"1\">\n        " \
+                  "<MailpieceShape>Parcel</MailpieceShape>\n        " \
+                  "<MailClass>ParcelSelect</MailClass>\n        " \
+                  "<WeightOz>10</WeightOz>\n        " \
+                  "<DateAdvance>3</DateAdvance>\n        " \
+                  "<SundayHolidayDelivery>HOLIDAY</SundayHolidayDelivery>\n        " \
+                  "<LiveAnimalSurcharge>FALSE</LiveAnimalSurcharge>\n        " \
+                  "<Extension>8004444444</Extension>\n        " \
+                  "<MailpieceDimensions>\n          " \
+                  "<Length>10</Length>\n          " \
+                  "<Width>6</Width>\n          " \
+                  "<Height>6</Height>\n        " \
+                  "</MailpieceDimensions>\n        " \
+                  "<RequesterID>lxxx</RequesterID>\n        " \
+                  "<CertifiedIntermediary>\n          " \
+                  "<AccountID>2553955</AccountID>\n          " \
+                  "<PassPhrase>Testing@54321!</PassPhrase>\n        " \
+                  "</CertifiedIntermediary>\n        " \
+                  "<AutomationRate>FALSE</AutomationRate>\n        " \
+                  "<Machinable>TRUE</Machinable>\n        " \
+                  "<ServiceLevel>NextDay2ndDayPOToAddressee</ServiceLevel>\n        " \
+                  "<SortType>Presorted</SortType>\n        " \
+                  "<Value>10.0</Value>\n        " \
+                  "<CODAmount>2.0</CODAmount>\n        " \
+                  "<InsuredValue>1</InsuredValue>\n        " \
+                  "<RegisteredMailValue>2</RegisteredMailValue>\n        " \
+                  "<EntryFacility>DDU</EntryFacility>\n        " \
+                  "<FromPostalCode>94518</FromPostalCode>\n        " \
+                  "<ToPostalCode>92003</ToPostalCode>\n        " \
+                  "<ToCountry>USA</ToCountry>\n        " \
+                  "<ToCountryCode>US</ToCountryCode>\n        " \
+                  "<ShipDate>05/11/2020</ShipDate>\n        " \
+                  "<ShipTime>03:15</ShipTime>\n        " \
+                  "<IsConsolidator>FALSE</IsConsolidator>\n        " \
+                  "<DeliveryTimeDays>TRUE</DeliveryTimeDays>\n        " \
+                  "<PrintScanBasedPaymentLabel>FALSE</PrintScanBasedPaymentLabel>\n        " \
+                  "<FromCountryCode>US</FromCountryCode>\n        " \
+                  "<EstimatedDeliveryDate>TRUE</EstimatedDeliveryDate>\n      " \
+                  "</PostageRateRequest>\n    " \
+                  "</CalculatePostageRate>\n  " \
+                  "</soap:Body>\n</soap:Envelope>"
+        headers = {
+            'Content-Type': 'text/xml; charset=utf-8',
+            'SOAPAction': '"www.envmgr.com/LabelService/CalculatePostageRate"',
+            'Host': 'elstestserver.endicia.com'
+        }
+        response = requests.request("POST", url, headers=headers, data=payload)
 
-        weight = math.modf(self.weight)
-        pounds = int(weight[1])
-        ounces = round(weight[0], 2) * 16
-
-        container = self.container_usps and '<Container>' + self.container_usps + '</Container>' or '<Container/>'
-
-        size = '<Size>' + self.size_usps + '</Size>'
-        if self.size_usps == 'LARGE':
-            size += '<Width>' + self.width_usps + '</Width>'
-            size += '<Length>' + self.length_usps + '</Length>'
-            size += '<Height>' + self.height_usps + '</Height>'
-
-            if self.container_usps == 'Non-Rectangular' or self.container_usps == 'Variable' or self.container_usps == '':
-                size += '<Girth>' + self.girth_usps + '</Girth>'
-
-        data.append(
-            '<RateV4Request USERID="' + self.usps_info.user_id + '"><Revision/><Package ID="1ST">' + service_type + '<ZipOrigination>' + self.shipper.zip + '</ZipOrigination><ZipDestination>' + self.receipient.zip + '</ZipDestination><Pounds>' + str(
-                pounds) + '</Pounds><Ounces>' + str(
-                ounces) + '</Ounces>' + container + size + '<Machinable>true</Machinable></Package></RateV4Request>')
-        data.append("http://production.shippingapis.com/ShippingAPI.dll?API=RateV4&")
-        return data
+        return response
 
     def _parse_response_body(self, root):
         return USPSRateResponse(root, self.weight, self.cust_default, self.sys_default)

@@ -430,33 +430,65 @@ class stock_picking(models.Model):
         else:
             return False
 
+
     def create_quotes(self, values):
         '''
         This function is used to Create the shipping rates in sale aswell as in delivey order
-        parameters: 
+        parameters:
             values : shipping rate creation values
             type: Dictionary
         '''
-        for vals in values.postage:
-            quotes_vals = {
-                'name': vals['Service'],
-                'type': self._context['type'] or '',
-                'rate': vals['Rate'],
-                'weight': values.weight,
-                'sys_default': False,
-                'cust_default': False,
-                'sr_no': vals['sr_no'],
-            }
-            if self._context.get('saleorder_id', False):
-                quotes_vals['saleorder_id'] = self._context['saleorder_id']
-            else:
-                quotes_vals['picking_id'] = self[0].id
+        vals = values.get("soap:Envelope").get("soap:Body").get('CalculatePostageRateResponse').get(
+            'PostageRateResponse').get('Postage')
+        quotes_vals = {
+                    'name': vals.get('MailService'),
+                    'type': self._context['type'] or '',
+                    'rate': vals.get('Rate'),
+                    # 'weight': values.weight or 0,
+                    'sys_default': False,
+                    'cust_default': False,
+                    # 'sr_no': vals['sr_no'] or 0,
+                }
 
-            res_id = self.env['shipping.response'].create(quotes_vals)
+        if self._context.get('saleorder_id', False):
+                quotes_vals['saleorder_id'] = self._context['saleorder_id']
+        else:
+                quotes_vals['picking_id'] = self[0].id
+                res_id = self.env['shipping.response'].create(quotes_vals)
         if res_id:
             return True
         else:
             return False
+
+
+
+    # def create_quotes(self, values):
+    #     '''
+    #     This function is used to Create the shipping rates in sale aswell as in delivey order
+    #     parameters:
+    #         values : shipping rate creation values
+    #         type: Dictionary
+    #     '''
+    #     for vals in values.postage:
+    #         quotes_vals = {
+    #             'name': vals['Service'],
+    #             'type': self._context['type'] or '',
+    #             'rate': vals['Rate'],
+    #             'weight': values.weight,
+    #             'sys_default': False,
+    #             'cust_default': False,
+    #             'sr_no': vals['sr_no'],
+    #         }
+    #         if self._context.get('saleorder_id', False):
+    #             quotes_vals['saleorder_id'] = self._context['saleorder_id']
+    #         else:
+    #             quotes_vals['picking_id'] = self[0].id
+    #
+    #         res_id = self.env['shipping.response'].create(quotes_vals)
+    #     if res_id:
+    #         return True
+    #     else:
+    #         return False
 
     def create_attachment(self, vals):
         attachment_pool = self.env['ir.attachment']
