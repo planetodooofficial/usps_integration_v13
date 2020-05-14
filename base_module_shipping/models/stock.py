@@ -525,6 +525,10 @@ class stock_picking(models.Model):
                 shipping_type = stockpicking.shipping_type
 
                 weight = stockpicking.weight_package
+                length = stockpicking.length_package
+                width = stockpicking.width_package
+                height = stockpicking.height_package
+
                 residential = stockpicking.is_residential
                 if not weight:
                     raise osv.except_osv(_('Error'), _('Package Weight Invalid!'))
@@ -573,10 +577,21 @@ class stock_picking(models.Model):
                     length_usps = stockpicking.length_usps
                     height_usps = stockpicking.height_usps
                     girth_usps = stockpicking.girth_usps
-                    usps = shippingservice.USPSRateRequest(usps_info, service_type_usps, first_class_mail_type_usps,
-                                                           container_usps, size_usps, width_usps, length_usps,
-                                                           height_usps, girth_usps, weight, shipper, receipient,
-                                                           cust_default, sys_default)
+                    credentials = self.env['shipping.usps'].search([('id','=', 1)]),
+                    passphrase = ""
+                    account_no= 0
+                    requester = " "
+                    for credential in credentials:
+                        account_no = credential.account_id
+                        requester = credential.requester_id
+                        passphrase = credential.passphrase
+
+                    # usps = shippingservice.USPSRateRequest(usps_info, service_type_usps, first_class_mail_type_usps,
+                    #                                        container_usps, size_usps, width_usps, length_usps,
+                    #                                        height_usps, girth_usps, weight, shipper, receipient,
+                    #                                        cust_default, sys_default,passphrase,account_no,requester)
+
+                    usps = shippingservice.USPSConnect(account_no,requester,passphrase, weight, length, width, height)
                     usps_response = usps.send()
                     context['type'] = 'USPS'
                     self.with_context(context).create_quotes(usps_response)
@@ -970,16 +985,24 @@ class stock_picking(models.Model):
         context = dict(self._context or {})
         weight = 0.0
         product_id = False
+        product_uom_qty =0
         for line in lines:
-            product_qty = 0.0
             try:
-                product_qty = line.product_uom_qty
+                if line._description == "Sales Order Line":
+                    product_qty = line.product_uom_qty
+                else:
+                    product_qty = line.order_line.product_uom_qty
+
             except Exception as e:
                 product_qty = line.product_uom_qty
-
-            if (line.product_id.product_tmpl_id.weight_net * product_qty) >= weight:
-                product_id = line.product_id.id
-                weight = line.product_id.product_tmpl_id.weight_net * product_qty
+            if line._description == "Sales Order Line":
+                if(line.product_id.product_tmpl_id.weight_net * product_qty) >= weight:
+                    product_id = line.product_id.id
+                    weight = line.product_id.product_tmpl_id.weight_net * product_qty
+            else:
+                if(line.order_line.product_id.product_tmpl_id.weight_net * product_qty) >= weight:
+                    product_id = line.order_line.product_id.id
+                    weight = line.order_line.product_id.product_tmpl_id.weight_net * product_qty
         return product_id
 
     def _cal_weight_usps(self, name, args):

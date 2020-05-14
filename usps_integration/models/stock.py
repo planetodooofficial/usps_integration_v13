@@ -158,15 +158,16 @@ class stock_picking(models.Model):
                                      (cust_address.name != cust_address.name) and cust_address.name or '')
                 lines = self.env['sale.order'].browse(self.sale_id.id)
                 heaviest_product_id = self._get_heaviest_product([id], lines)
-                sys_default = self._get_sys_default_shipping(lines.sale_id, heaviest_product_id, weight)
-                self.context['sys_default'] = sys_default
-                cust_default = self._get_cust_default_shipping(stockpicking.carrier_id.id)
-                self.context['cust_default'] = cust_default
-                shipping_res = self.generate_usps_endicia_shipping([id], weight, shipper, receipient,
-                                                                   self._context.get('cust_default', False),
-                                                                   self._context.get('sys_default', False),
-                                                                   self._context.get('error', False), self._context)
-                logger.info('endicia shipping_res:  %s', shipping_res)
+                sys_default = self._get_sys_default_shipping(lines, heaviest_product_id, weight)
+                print("skskks",sys_default)
+                # self.context['sys_default'] = sys_default
+                # cust_default = self._get_cust_default_shipping(stockpicking.carrier_id.id)
+                # self.context['cust_default'] = cust_default
+                # shipping_res = self.generate_usps_endicia_shipping([id], weight, shipper, receipient,
+                #                                                    self._context.get('cust_default', False),
+                #                                                    self._context.get('sys_default', False),
+                #                                                    self._context.get('error', False), self._context)
+                # logger.info('endicia shipping_res:  %s', shipping_res)
         return True
 
 
@@ -255,6 +256,7 @@ class shipping_response(models.Model):
                                        debug=ship_endicia.test,
                                        destination_confirm=True if picking.service_type_usps == 'First Class' and picking.container_usps == 'Letter' else False,
                                        customs_info=customs)
+
         response = request.send()
         if isinstance(response, str):
             log_data = picking.write({'error_for_faulty': str(response), 'is_faulty_deliv_order': True})

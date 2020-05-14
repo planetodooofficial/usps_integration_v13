@@ -28,6 +28,8 @@ from urllib.request import urlopen
 import requests
 import json
 import xmltodict
+from odoo import models, fields, api
+
 
 
 logger = logging.getLogger('shippingservice')
@@ -464,9 +466,11 @@ class USPSShipping(Shipping):
 
 
 class USPSRateRequest(USPSShipping):
+
+# class USPSRateRequest(models.Model):
     def __init__(self, usps_info, service_type_usps, first_class_mail_type_usps, container_usps, size_usps, width_usps,
                  length_usps, height_usps, girth_usps, weight, shipper, receipient, cust_default=False,
-                 sys_default=False):
+                 sys_default=False, ):
         self.type = 'USPS'
         self.usps_info = usps_info
         self.service_type_usps = service_type_usps
@@ -480,7 +484,7 @@ class USPSRateRequest(USPSShipping):
         self.cust_default = cust_default
         self.sys_default = sys_default
         super(USPSRateRequest, self).__init__(weight, shipper, receipient)
-
+    #
     # def _get_data(self):
     #     data = []
     #
@@ -511,7 +515,25 @@ class USPSRateRequest(USPSShipping):
     #     data.append("http://production.shippingapis.com/ShippingAPI.dll?API=RateV4&")
     #     return data
 
+
+
+    def _parse_response_body(self, root):
+        return USPSRateResponse(root, self.weight, self.cust_default, self.sys_default)
+
+class USPSConnect(USPSShipping):
+
+    def __init__(self,account_no,requester,passphrase, weight, length, width, height):
+
+        self.account_no = account_no
+        self.requester = requester
+        self.passphrase = passphrase
+        self.weight = str(weight)
+        self.length = str(length)
+        self. width = str(width)
+        self.height = str(height)
+
     def _get_data(self):
+        # credentials = self.env['shipping.usps'].search([('id', '=', 1)]),
 
         url = "https://elstestserver.endicia.com/LabelService/EwsLabelService.asmx"
 
@@ -523,20 +545,20 @@ class USPSRateRequest(USPSShipping):
                   "<PostageRateRequest ResponseVersion=\"1\">\n        " \
                   "<MailpieceShape>Parcel</MailpieceShape>\n        " \
                   "<MailClass>ParcelSelect</MailClass>\n        " \
-                  "<WeightOz>10</WeightOz>\n        " \
+                  "<WeightOz>"+self.weight+"</WeightOz>\n        " \
                   "<DateAdvance>3</DateAdvance>\n        " \
                   "<SundayHolidayDelivery>HOLIDAY</SundayHolidayDelivery>\n        " \
                   "<LiveAnimalSurcharge>FALSE</LiveAnimalSurcharge>\n        " \
                   "<Extension>8004444444</Extension>\n        " \
                   "<MailpieceDimensions>\n          " \
-                  "<Length>10</Length>\n          " \
-                  "<Width>6</Width>\n          " \
-                  "<Height>6</Height>\n        " \
+                  "<Length>"+self.length+"</Length>\n          " \
+                  "<Width>"+self.width+"</Width>\n          " \
+                  "<Height>"+self.height+"</Height>\n        " \
                   "</MailpieceDimensions>\n        " \
-                  "<RequesterID>lxxx</RequesterID>\n        " \
+                  "<RequesterID>"+self.requester+"</RequesterID>\n        " \
                   "<CertifiedIntermediary>\n          " \
-                  "<AccountID>2553955</AccountID>\n          " \
-                  "<PassPhrase>Testing@54321!</PassPhrase>\n        " \
+                  "<AccountID>"+self.account_no+"</AccountID>\n          " \
+                  "<PassPhrase>"+self.passphrase+"</PassPhrase>\n        " \
                   "</CertifiedIntermediary>\n        " \
                   "<AutomationRate>FALSE</AutomationRate>\n        " \
                   "<Machinable>TRUE</Machinable>\n        " \
@@ -570,8 +592,7 @@ class USPSRateRequest(USPSShipping):
 
         return response
 
-    def _parse_response_body(self, root):
-        return USPSRateResponse(root, self.weight, self.cust_default, self.sys_default)
+
 
 
 class USPSRateResponse(object):
