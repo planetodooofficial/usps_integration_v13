@@ -27,7 +27,7 @@
      Odoo Integration with USPS, UPS and Fedex
     """,
     "website": "www.planet-odoo.com",
-    'author': 'Planet Odoo',
+    'author': 'Planet-Odoo',
     'depends': ['sale', 'stock', 'delivery', 'product', 'sale_stock'],
     'css': [
         'static/src/css/rotate_label.css',
